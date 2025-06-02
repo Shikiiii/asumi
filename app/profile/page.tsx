@@ -135,7 +135,7 @@ export default function ProfilePage() {
   // Mock stats data
   const stats = {
     totalAnime: 156,
-    favorites: 23,
+    episodes: 1247,
     completed: 89,
     watching: 12,
     onHold: 8,
@@ -315,10 +315,10 @@ export default function ProfilePage() {
                     
                     <div className="bg-gradient-to-br from-pink-600/20 to-purple-600/20 rounded-lg p-4 border border-pink-500/20">
                       <div className="flex items-center gap-2 mb-2">
-                        <Heart className="h-4 w-4 text-pink-400" />
-                        <span className="text-sm text-white/80">Favorites</span>
+                        <Star className="h-4 w-4 text-pink-400" />
+                        <span className="text-sm text-white/80">Episodes</span>
                       </div>
-                      <div className="text-2xl font-bold text-white">{stats.favorites}</div>
+                      <div className="text-2xl font-bold text-white">{stats.episodes}</div>
                     </div>
                     
                     <div className="bg-gradient-to-br from-yellow-600/20 to-orange-600/20 rounded-lg p-4 border border-yellow-500/20 md:col-span-2">
