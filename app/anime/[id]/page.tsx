@@ -12,6 +12,7 @@ import type { Anime } from "@/types/anime"
 
 // Helper to clean HTML tags from synopsis
 function cleanSynopsis(s: string): string {
+  if (!s) return "No synopsis available";
   return s.replace(/<[^>]*>/g, '').replace(/&[a-z]+;/gi, ' ').replace(/\s+/g, ' ').trim();
 }
 
