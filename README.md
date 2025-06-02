@@ -7,7 +7,7 @@ Asumi transforms anime discovery into an engaging, Tinder-like experience. Conne
 ![Asumi](https://via.placeholder.com/800x400/000000/FFFFFF?text=Asumi+Demo+GIF)
 
 <div align="center">
-  <img src="1.png" alt="Swipe Page" width="200"/>
+  <img src="/screenshots/1.png" alt="Swipe Page" width="1080"/>
 </div>
 
 ## ✨ Features
@@ -91,8 +91,8 @@ Try it live: [aniswipe.vercel.app](https://your-demo-link.com)
 ## 📱 Screenshots
 
 <div align="center">
-  <img src="2.png" alt="Home Page" width="200"/>
-  <img src="3.png" alt="Profile Page" width="200"/>
+  <img src="/screenshots/2.png" alt="Home Page" width="1080"/>
+  <img src="/screenshots/3.png" alt="Profile Page" width="1080"/>
 </div>
 
 ## 🏗️ Project Structure
