@@ -1,4 +1,82 @@
 import type { Anime } from "@/types/anime"
+import axios from "axios";
+
+const ANILIST_API_URL = "https://graphql.anilist.co";
+
+async function filterOutAlreadyWatched(
+  token: string | undefined,
+  userName: string | null,
+  animeIds: number[]
+): Promise<number[]> {
+  const query = `
+    query ($userName: String, $ids: [Int]) {
+      MediaListCollection(userName: $userName, type: ANIME) {
+        lists {
+          entries {
+            mediaId
+          }
+        }
+      }
+    }`;
+
+  try {
+    const response = await axios.post(
+      ANILIST_API_URL,
+      { query, variables: { userName, ids: animeIds } },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    const lists = response.data.data.MediaListCollection?.lists ?? [];
+    const seenIds = new Set<number>();
+
+    for (const list of lists) {
+      for (const entry of list.entries) {
+        seenIds.add(entry.mediaId);
+      }
+    }
+
+    // Filter out any ID that already exists in the user's list
+    return animeIds.filter(id => !seenIds.has(id));
+  } catch (error) {
+    console.error("Failed to filter out watched anime:", error);
+    return animeIds; // fallback to returning all if the query fails
+  }
+}
+
+async function fetchViewerName(accessToken: string | undefined): Promise<string | null> {
+  const query = `
+    query {
+      Viewer {
+        name
+      }
+    }
+  `;
+
+  try {
+    const response = await axios.post(
+      ANILIST_API_URL,
+      { query },
+      {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    console.log("Response from fetching name:", response.status);
+
+    return response.data.data.Viewer.name;
+  } catch (error) {
+    console.error('Failed to fetch viewer name:', error);
+    return null;
+  }
+}
 
 export async function getRecommendations(provider?: string, access_token?: string, refresh_token?: string | null): Promise<Anime[]> {
   if (provider === "mal") {
@@ -152,8 +230,17 @@ export async function getRecommendations(provider?: string, access_token?: strin
     // Merge recent and topRated, remove duplicates by id, and map to Anime[]
     const merged: any[] = [...(data.recent || []), ...(data.topRated || [])];
     console.log("Merged", merged);
+
+    const animeIds = Array.from(new Set(merged.map(item => item.id)));
+
+    const userName = await fetchViewerName(access_token);
+    const filteredOutAnimeIds = await filterOutAlreadyWatched(access_token, userName, animeIds);
+
+    // now use the filtered out anime ids to remove the ones that are no longer in the list via the merged array
+    const filteredMerged = merged.filter(item => filteredOutAnimeIds.includes(item.id));
+
     const seen = new Set();
-    const recommendations: Anime[] = merged
+    const recommendations: Anime[] = filteredMerged
       .filter(item => {
         if (seen.has(item.id)) return false;
         seen.add(item.id);
