@@ -2,84 +2,105 @@
 
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import { ArrowRight } from "lucide-react"
+import { ArrowRight, Play, Star, Zap, Heart, Users } from "lucide-react"
 import { motion } from "framer-motion"
 import { useEffect, useState } from "react"
 
-// Sample anime covers for the grid - doubled for continuous scrolling
+// Sample anime covers for the grid
 const animeCovers = [
   {
     title: "Fullmetal Alchemist: Brotherhood",
     image: "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx5114-KJTQz9AIm6Wk.jpg",
     year: "2009",
     type: "TV Series",
-    color: "blue",
+    rating: 9.1,
   },
   {
     title: "Jujutsu Kaisen",
     image: "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx113415-bbBWj4pEFseh.jpg",
     year: "2020",
     type: "TV Series",
-    color: "cyan",
+    rating: 8.5,
   },
   {
     title: "Demon Slayer",
     image: "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx101922-PEn1CTc93blC.jpg",
     year: "2019",
     type: "TV Series",
-    color: "green",
+    rating: 8.7,
   },
   {
     title: "Attack on Titan",
     image: "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx16498-C6FPmWm59CyP.jpg",
     year: "2013",
     type: "TV Series",
-    color: "orange",
+    rating: 9.0,
   },
   {
     title: "Spy x Family",
     image: "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx140960-vN39AmOWrVB5.jpg",
     year: "2022",
     type: "TV Series",
-    color: "pink",
+    rating: 8.6,
   },
   {
     title: "Goblin Slayer",
     image: "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/nx101165-dVgOyGhEP4mB.jpg",
     year: "2018",
     type: "TV Series",
-    color: "green",
+    rating: 7.4,
   },
   {
     title: "Chainsaw Man",
     image: "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx127230-FlochcFsyoF4.png",
     year: "2022",
     type: "TV Series",
-    color: "red",
+    rating: 8.8,
   },
 ]
 
-// Double the array for continuous scrolling
-const doubledAnimeCovers = [...animeCovers, ...animeCovers]
-
-// AnimeCard component with tilt
+// Enhanced AnimeCard component - mobile optimized
 const AnimeCard = ({ anime, delay = 0 }: { anime: (typeof animeCovers)[0]; delay?: number }) => {
   return (
     <motion.div
-      className="relative mb-6"
+      className="relative mb-4 md:mb-6 group cursor-pointer flex-shrink-0"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay }}
-      style={{ transform: "rotate(3deg)" }} // Tilt to the right
+      style={{ transform: "rotate(2deg)" }}
+      whileHover={{ scale: 1.05, rotate: 0 }}
     >
-      <img src={anime.image || "/placeholder.svg"} alt={anime.title} className="w-full rounded-lg shadow-lg" />
-      <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black to-transparent">
-        <div className={`w-2 h-2 rounded-full bg-${anime.color}-400 mb-1 inline-block mr-2`}></div>
-        <h3 className="font-semibold text-sm md:text-base truncate">{anime.title}</h3>
-        <div className="flex items-center text-xs text-white/60 mt-1">
-          <span>{anime.year}</span>
-          <span className="mx-2">•</span>
-          <span>{anime.type}</span>
+      <div className="relative overflow-hidden rounded-lg md:rounded-xl shadow-xl md:shadow-2xl">
+        <img 
+          src={anime.image || "/placeholder.svg"} 
+          alt={anime.title} 
+          className="w-full aspect-[3/4] object-cover transition-transform duration-500 group-hover:scale-110" 
+        />
+        
+        {/* Hover overlay - hidden on mobile */}
+        <div className="hidden md:block absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <div className="absolute bottom-4 left-4 right-4">
+            <div className="flex items-center gap-2 mb-2">
+              <Star className="h-4 w-4 text-yellow-400 fill-current" />
+              <span className="text-white font-semibold">{anime.rating}</span>
+            </div>
+            <h3 className="font-bold text-white text-sm leading-tight">{anime.title}</h3>
+            <div className="flex items-center text-xs text-white/80 mt-1">
+              <span>{anime.year}</span>
+              <span className="mx-2">•</span>
+              <span>{anime.type}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Always visible gradient overlay on mobile, hidden on desktop hover */}
+        <div className="absolute bottom-0 left-0 right-0 p-2 md:p-3 bg-gradient-to-t from-black/80 to-transparent md:opacity-0 md:group-hover:opacity-0 transition-opacity duration-300">
+          <h3 className="font-semibold text-xs md:text-sm text-white truncate">{anime.title}</h3>
+          <div className="flex items-center text-xs text-white/60 mt-1">
+            <span>{anime.year}</span>
+            <span className="mx-1 md:mx-2">•</span>
+            <span className="text-xs">{anime.type}</span>
+          </div>
         </div>
       </div>
     </motion.div>
@@ -87,104 +108,247 @@ const AnimeCard = ({ anime, delay = 0 }: { anime: (typeof animeCovers)[0]; delay
 }
 
 export default function Home() {
-  const [scrollHeight, setScrollHeight] = useState(2000) // Default height
+  const [isMobile, setIsMobile] = useState(false)
 
-  // Calculate the total height needed for scrolling
   useEffect(() => {
-    // Set a height that ensures we have enough content to scroll
-    setScrollHeight(window.innerHeight * 2)
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    
+    return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
+  // Create duplicated arrays for seamless scrolling
+  const col1Cards = animeCovers.filter((_, index) => index % 2 === 0)
+  const col2Cards = animeCovers.filter((_, index) => index % 2 === 1)
+  
+  // Triple each column for seamless loop
+  const tripleCol1 = [...col1Cards, ...col1Cards, ...col1Cards]
+  const tripleCol2 = [...col2Cards, ...col2Cards, ...col2Cards]
+
   return (
-    <div className="min-h-screen bg-black text-white">
-      <header className="container mx-auto py-6 flex justify-between items-center">
-        <div className="text-2xl font-bold text-white">AnimeSwipe</div>
-        <div className="flex gap-4">
-          <Link href="/">
-            <Button variant="ghost" className="text-white hover:text-white hover:bg-white/20">
+    <div className="min-h-screen bg-black text-white overflow-x-hidden">
+      {/* Add CSS keyframes */}
+      <style jsx>{`
+        @keyframes scrollUp {
+          0% {
+            transform: translateY(0);
+          }
+          100% {
+            transform: translateY(-33.333%);
+          }
+        }
+        
+        @keyframes scrollDown {
+          0% {
+            transform: translateY(-33.333%);
+          }
+          100% {
+            transform: translateY(0);
+          }
+        }
+        
+        .scroll-up {
+          animation: scrollUp 40s linear infinite;
+        }
+        
+        .scroll-down {
+          animation: scrollDown 45s linear infinite;
+        }
+        
+        @media (max-width: 768px) {
+          .scroll-up {
+            animation: scrollUp 30s linear infinite;
+          }
+          
+          .scroll-down {
+            animation: scrollDown 35s linear infinite;
+          }
+        }
+      `}</style>
+
+      {/* Header - Mobile optimized */}
+      <motion.header 
+        className="container mx-auto px-4 py-4 md:py-6 flex justify-between items-center relative z-20"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+      >
+        <div className="text-xl md:text-2xl font-bold bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent">
+          AnimeSwipe
+        </div>
+        <div className="flex gap-2 md:gap-4">
+          <Link href="/about">
+            <Button variant="ghost" size={isMobile ? "sm" : "default"} className="text-white hover:text-white hover:bg-white/10 transition-all">
               About
             </Button>
           </Link>
           <Link href="/login">
-            <Button variant="outline" className="text-black border-white bg-white hover:bg-gray-200 hover:text-black">
+            <Button size={isMobile ? "sm" : "default"} className="bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-white border-0 shadow-lg hover:shadow-xl transition-all">
               Login
             </Button>
           </Link>
         </div>
-      </header>
+      </motion.header>
 
-      <main className="container mx-auto px-4 py-8 md:py-16">
-        <div className="flex flex-col md:flex-row gap-12">
-          {/* Text and button - left on desktop, top on mobile */}
-            <div className="md:w-1/2 space-y-6 md:sticky md:top-24 md:self-start text-center md:text-left">
-            <h1 className="text-4xl md:text-6xl font-bold text-white leading-tight">
-              Discover your next <span className="text-pink-400">favorite anime</span> with a swipe
+      <main className="container mx-auto px-4 py-4 md:py-8 lg:py-16">
+        {/* Layout: flex-col for mobile, lg:flex-row for desktop */}
+        <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-center">
+          {/* Enhanced Anime Grid - Mobile first (appears on top on mobile) */}
+          <motion.div 
+            className="w-full lg:w-1/2 order-1 lg:order-2"
+            initial={{ opacity: 0, x: isMobile ? 0 : 50, y: isMobile ? -20 : 0 }}
+            animate={{ opacity: 1, x: 0, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+          >
+            <div className="relative h-[400px] md:h-[600px] lg:h-[700px] overflow-hidden rounded-xl md:rounded-2xl">
+              {/* Enhanced gradients */}
+              <div className="absolute top-0 left-0 right-0 h-16 md:h-20 bg-gradient-to-b from-black via-black/80 to-transparent z-10"></div>
+              <div className="absolute bottom-0 left-0 right-0 h-16 md:h-20 bg-gradient-to-t from-black via-black/80 to-transparent z-10"></div>
+              <div className="absolute left-0 top-0 bottom-0 w-4 md:w-8 bg-gradient-to-r from-black/60 to-transparent z-10"></div>
+              <div className="absolute right-0 top-0 bottom-0 w-4 md:w-8 bg-gradient-to-l from-black/60 to-transparent z-10"></div>
+
+              {/* First column - CSS animation */}
+              <div className="absolute left-0 w-[48%] scroll-up">
+                {tripleCol1.map((anime, index) => (
+                  <AnimeCard key={`col1-${index}`} anime={anime} />
+                ))}
+              </div>
+
+              {/* Second column - CSS animation with offset */}
+              <div className="absolute right-0 w-[48%] scroll-down" style={{ marginTop: isMobile ? '60px' : '80px' }}>
+                {tripleCol2.map((anime, index) => (
+                  <AnimeCard key={`col2-${index}`} anime={anime} />
+                ))}
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Enhanced Hero Section - Mobile first */}
+          <motion.div 
+            className="w-full lg:w-1/2 space-y-6 md:space-y-8 lg:sticky lg:top-24 lg:self-start text-center lg:text-left order-2 lg:order-1"
+            initial={{ opacity: 0, x: isMobile ? 0 : -50, y: isMobile ? 20 : 0 }}
+            animate={{ opacity: 1, x: 0, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+          >
+            {/* Badge */}
+            <motion.div
+              className="inline-flex items-center gap-2 px-3 py-2 md:px-4 bg-gradient-to-r from-purple-900/50 to-pink-900/50 rounded-full border border-purple-500/30 text-xs md:text-sm"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+            >
+              <Zap className="h-3 w-3 md:h-4 md:w-4 text-yellow-400" />
+              <span>Powered by AI Recommendations</span>
+            </motion.div>
+
+            <h1 className="text-3xl md:text-5xl lg:text-7xl font-black text-white leading-tight">
+              Discover your next{" "}
+              <span className="bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
+                favorite anime
+              </span>{" "}
+              with a swipe
             </h1>
-            <p className="text-lg text-white/80">
-              Connect your MyAnimeList or Anilist account and get personalized recommendations based on what you already
-              love.
+
+            <p className="text-lg md:text-xl text-gray-300 leading-relaxed max-w-lg mx-auto lg:mx-0">
+              Connect your MyAnimeList or Anilist account and get personalized recommendations powered by advanced algorithms.
             </p>
-            <div className="flex justify-center md:justify-start gap-4 pt-4">
-              <Link href="/login">
-              <Button size="lg" className="bg-pink-600 hover:bg-pink-700 text-white">
-                Get Started <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
+
+                        {/* CTA Buttons - Mobile optimized */}
+            <div className="flex flex-col sm:flex-row justify-center lg:justify-start gap-3 md:gap-4 pt-4">
+              <Link href="/login" className="w-full sm:w-auto">
+                <Button 
+                  size={isMobile ? "default" : "lg"}
+                  className="w-full sm:w-auto bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-white shadow-2xl hover:shadow-pink-500/25 transition-all hover:scale-105 px-6 md:px-8 py-3 md:py-4 text-base md:text-lg font-semibold"
+                >
+                  Get Started <ArrowRight className="ml-2 h-4 w-4 md:h-5 md:w-5" />
+                </Button>
               </Link>
-            </div>
-            </div>
-
-          {/* Auto-scrolling grid of anime covers - right on desktop, bottom on mobile */}
-          <div className="md:w-1/2 mt-12 md:mt-0">
-            <div className="relative h-[600px] md:h-[700px] overflow-hidden">
-              {/* Gradient overlay at top for fade effect */}
-              <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-black to-transparent z-10"></div>
-
-              {/* First column - auto-scrolling */}
-              <motion.div
-                className="absolute left-0 w-[48%]"
-                initial={{ y: 0 }}
-                animate={{ y: [-scrollHeight / 2, 0] }}
-                transition={{
-                  repeat: Number.POSITIVE_INFINITY,
-                  repeatType: "loop",
-                  duration: 40,
-                  ease: "linear",
-                }}
+              <Button 
+                size={isMobile ? "default" : "lg"}
+                variant="outline" 
+                className="w-full sm:w-auto border-2 border-white/20 text-white hover:bg-white/10 hover:border-white/40 transition-all px-6 md:px-8 py-3 md:py-4 text-base md:text-lg"
               >
-                {doubledAnimeCovers.map(
-                  (anime, index) =>
-                    index % 2 === 0 && <AnimeCard key={`col1-${index}`} anime={anime} delay={index * 0.1} />,
-                )}
-              </motion.div>
-
-              {/* Second column - auto-scrolling with offset */}
-              <motion.div
-                className="absolute right-0 w-[48%] mt-12"
-                initial={{ y: 0 }}
-                animate={{ y: [0, -scrollHeight / 2] }}
-                transition={{
-                  repeat: Number.POSITIVE_INFINITY,
-                  repeatType: "loop",
-                  duration: 40, // Slightly different speed for visual interest
-                  ease: "linear",
-                }}
-              >
-                {doubledAnimeCovers.map(
-                  (anime, index) =>
-                    index % 2 === 1 && <AnimeCard key={`col2-${index}`} anime={anime} delay={index * 0.1 + 0.15} />,
-                )}
-              </motion.div>
-
-              {/* Gradient overlay at bottom for fade effect */}
-              <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black to-transparent z-10"></div>
+                <Play className="mr-2 h-4 w-4 md:h-5 md:w-5" /> Watch Demo
+              </Button>
             </div>
-          </div>
+
+            {/* Feature highlights - Mobile optimized */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4 py-4 md:py-6">
+              <div className="flex items-center gap-3 p-3 md:p-0 bg-gray-900/50 md:bg-transparent rounded-lg md:rounded-none">
+                <div className="p-2 bg-pink-600/20 rounded-lg shrink-0">
+                  <Heart className="h-4 w-4 md:h-5 md:w-5 text-pink-400" />
+                </div>
+                <div className="text-left">
+                  <div className="font-semibold text-white text-sm md:text-base">Smart Matching</div>
+                  <div className="text-xs md:text-sm text-gray-400">AI-powered suggestions</div>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-3 md:p-0 bg-gray-900/50 md:bg-transparent rounded-lg md:rounded-none">
+                <div className="p-2 bg-purple-600/20 rounded-lg shrink-0">
+                  <Users className="h-4 w-4 md:h-5 md:w-5 text-purple-400" />
+                </div>
+                <div className="text-left">
+                  <div className="font-semibold text-white text-sm md:text-base">Community</div>
+                  <div className="text-xs md:text-sm text-gray-400">Join anime lovers</div>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-3 md:p-0 bg-gray-900/50 md:bg-transparent rounded-lg md:rounded-none">
+                <div className="p-2 bg-cyan-600/20 rounded-lg shrink-0">
+                  <Star className="h-4 w-4 md:h-5 md:w-5 text-cyan-400" />
+                </div>
+                <div className="text-left">
+                  <div className="font-semibold text-white text-sm md:text-base">Quality</div>
+                  <div className="text-xs md:text-sm text-gray-400">Curated content</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Stats - Mobile optimized */}
+            <motion.div 
+              className="flex justify-center lg:justify-start gap-6 md:gap-8 pt-6 md:pt-8 text-center"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.8 }}
+            >
+              <div>
+                <div className="text-2xl md:text-3xl font-bold text-white">10K+</div>
+                <div className="text-xs md:text-sm text-gray-400">Anime Titles</div>
+              </div>
+              <div>
+                <div className="text-2xl md:text-3xl font-bold text-white">50K+</div>
+                <div className="text-xs md:text-sm text-gray-400">Happy Users</div>
+              </div>
+              <div>
+                <div className="text-2xl md:text-3xl font-bold text-white">1M+</div>
+                <div className="text-xs md:text-sm text-gray-400">Matches Made</div>
+              </div>
+            </motion.div>
+          </motion.div>
         </div>
       </main>
 
-      <footer className="container mx-auto py-6 text-center text-white/60 text-sm">
-        &copy; {new Date().getFullYear()} AnimeSwipe. Not affiliated with MyAnimeList or Anilist.
-      </footer>
+      {/* Enhanced Footer - Mobile optimized */}
+      <motion.footer 
+        className="container mx-auto px-4 py-6 md:py-8 text-center border-t border-white/10 mt-8 md:mt-16"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6, delay: 1 }}
+      >
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="text-gray-400 text-xs md:text-sm">
+            &copy; {new Date().getFullYear()} AnimeSwipe. Not affiliated with MyAnimeList or Anilist.
+          </div>
+          <div className="flex gap-4 md:gap-6 text-xs md:text-sm">
+            <Link href="/privacy" className="text-gray-400 hover:text-white transition-colors">Privacy</Link>
+            <Link href="/terms" className="text-gray-400 hover:text-white transition-colors">Terms</Link>
+            <Link href="/contact" className="text-gray-400 hover:text-white transition-colors">Contact</Link>
+          </div>
+        </div>
+      </motion.footer>
     </div>
   )
 }

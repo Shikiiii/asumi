@@ -65,16 +65,11 @@ export default function SwipePage() {
 
   const handleSwipe = (direction: "left" | "right") => {
     if (direction === "right") {
-      // Save to liked list
       console.log("Liked:", recommendations[currentIndex])
     }
 
-    // Add a small delay to allow the animation to complete
-    setTimeout(() => {
-      setCurrentIndex((prev) => prev + 1)
-    }, 100)
-    setTimeout(() => {
-    }, 200)
+    // Update immediately - no setTimeout!
+    setCurrentIndex((prev) => prev + 1)
   }
 
   useEffect(() => {
@@ -156,41 +151,31 @@ export default function SwipePage() {
 
         {currentAnime ? (
           <>
-            <div className="mb-8">
-              <SwipeableCard anime={currentAnime} onSwipe={handleSwipe} />
-            </div>
-
-            <div className="flex justify-center gap-6 mt-8">
-              <Button
-                size="lg"
-                variant="outline"
-                className="rounded-full w-16 h-16 p-0 border-2 border-red-500 text-red-500 hover:bg-red-500 hover:text-white bg-black"
-                onClick={() => handleSwipe("left")}
-              >
-                <X className="h-8 w-8" />
-              </Button>
-
-              <Button
-                size="lg"
-                variant="outline"
-                className="rounded-full w-16 h-16 p-0 border-2 border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white bg-black"
-                onClick={() => router.push(`/anime/${currentAnime.id}`)}
-              >
-                <Info className="h-8 w-8" />
-              </Button>
-
-              <Button
-                size="lg"
-                variant="outline"
-                className="rounded-full w-16 h-16 p-0 border-2 border-green-500 text-green-500 hover:bg-green-500 hover:text-white bg-black"
-                onClick={() => handleSwipe("right")}
-              >
-                <Heart className="h-8 w-8" />
-              </Button>
+            <div className="mb-8 relative">
+              {/* Next card - behind the current one */}
+              {recommendations[currentIndex + 1] && (
+                <div className="absolute inset-0 z-0">
+                  <SwipeableCard 
+                    key={`next-${recommendations[currentIndex + 1].id}`}
+                    anime={recommendations[currentIndex + 1]} 
+                    onSwipe={() => {}} // No swipe handler for background card
+                    isBackground={true}
+                  />
+                </div>
+              )}
+              
+              {/* Current card - on top */}
+              <div className="relative z-10">
+                <SwipeableCard 
+                  key={currentAnime.id}
+                  anime={currentAnime} 
+                  onSwipe={handleSwipe} 
+                />
+              </div>
             </div>
           </>
         ) : (
-          <div className="text-white text-xl">You've seen all recommendatations for now.</div>
+          <div className="text-white text-xl">You've seen all recommendations for now.</div>
         )}
       </div>
     </div>
