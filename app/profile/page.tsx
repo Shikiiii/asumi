@@ -24,8 +24,16 @@ export default function ProfilePage() {
   interface UserInfo {
     username: string;
     avatar: string;
+    watching: number,
+    completed: number,
+    ptw: number,
+    onhold: number,
+    dropped: number,
+    days_watched: number,
+    episodes: number,
+    avg_rating: number,
   }
-  const [userInfo, setUserInfo] = useState<UserInfo>({ username: "", avatar: "" });
+  const [userInfo, setUserInfo] = useState<UserInfo>({ username: "", avatar: "", watching: 0, completed: 0, ptw: 0, onhold: 0, dropped: 0, days_watched: 0, episodes: 0, avg_rating: 0 });
 
   useEffect(() => {
     const checkMobile = () => {
@@ -48,33 +56,30 @@ export default function ProfilePage() {
         setUserData(updatedUserData);
         if (updatedUserData.provider === "mal") {
             fetch("/api/info/mal", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              access_token: updatedUserData.access_token,
-              refresh_token: updatedUserData.refresh_token,
-            }),
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                access_token: updatedUserData.access_token,
+                refresh_token: updatedUserData.refresh_token,
+              }),
             })
             .then((response) => {
               if (!response.ok) {
-              throw new Error("Failed to fetch user info from MAL");
+                throw new Error("Failed to fetch user info from MAL");
               }
               return response.json();
             })
             .then((data) => {
-              const updatedUserInfo = {username: data.username, avatar: data.avatar}
-              console.log("Updated user info:", updatedUserInfo);
-              setUserInfo(updatedUserInfo);
+              console.log("Updated user info:", data);
+              setUserInfo(data);
             })
             .catch((error) => {
               console.error("Error fetching user info from MAL:", error);
               router.push("/login");
             });
         } else if (updatedUserData.provider === "anilist") {
-          
-            // Fetch user info from AniList
             const query = `
               query {
                 Viewer {
@@ -132,16 +137,6 @@ export default function ProfilePage() {
     router.push("/login")
   }
 
-  // Mock stats data
-  const stats = {
-    totalAnime: 156,
-    favorites: 23,
-    completed: 89,
-    planToWatch: 34,
-    avgScore: 8.2,
-    daysWatched: 45.2
-  }
-
   // Mock swiping stats
   const swipeStats = {
     totalSwipes: 324,
@@ -177,7 +172,13 @@ export default function ProfilePage() {
             Back to Swiping
           </Button>
           
-
+          <Button
+            variant="outline"
+            className="border-white/20 text-white hover:bg-white/10 hover:border-white/40"
+          >
+            <Settings className="mr-2 h-4 w-4" />
+            Settings
+          </Button>
         </motion.div>
 
         <div className="max-w-5xl mx-auto">
@@ -226,18 +227,25 @@ export default function ProfilePage() {
                     {/* Quick stats */}
                     <div className="grid grid-cols-2 gap-4 mt-6 w-full">
                       <div className="bg-white/5 rounded-lg p-3 text-center">
-                        <div className="text-lg font-bold text-white">{stats.totalAnime}</div>
+                        <div className="text-lg font-bold text-white">{userInfo.completed + userInfo.watching + userInfo.onhold + userInfo.dropped}</div>
                         <div className="text-xs text-white/60">Total Anime</div>
                       </div>
                       <div className="bg-white/5 rounded-lg p-3 text-center">
-                        <div className="text-lg font-bold text-white">{stats.avgScore}</div>
+                        <div className="text-lg font-bold text-white">{userInfo.avg_rating}</div>
                         <div className="text-xs text-white/60">Avg Score</div>
                       </div>
                     </div>
 
                     {/* Action buttons */}
                     <div className="flex gap-2 mt-6 w-full">
-
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex-1 border-white/20 text-white hover:bg-white/10 hover:border-white/40"
+                      >
+                        <Edit className="mr-2 h-3 w-3" />
+                        Edit
+                      </Button>
                       <Button
                         variant="destructive"
                         size="sm"
@@ -275,7 +283,7 @@ export default function ProfilePage() {
                         <Star className="h-4 w-4 text-green-400" />
                         <span className="text-sm text-white/80">Completed</span>
                       </div>
-                      <div className="text-2xl font-bold text-white">{stats.completed}</div>
+                      <div className="text-2xl font-bold text-white">{userInfo.completed}</div>
                     </div>
                     
                     <div className="bg-gradient-to-br from-blue-600/20 to-blue-700/20 rounded-lg p-4 border border-blue-500/20">
@@ -283,7 +291,7 @@ export default function ProfilePage() {
                         <Calendar className="h-4 w-4 text-blue-400" />
                         <span className="text-sm text-white/80">Plan to Watch</span>
                       </div>
-                      <div className="text-2xl font-bold text-white">{stats.planToWatch}</div>
+                      <div className="text-2xl font-bold text-white">{userInfo.ptw}</div>
                     </div>
                     
                     <div className="bg-gradient-to-br from-pink-600/20 to-purple-600/20 rounded-lg p-4 border border-pink-500/20">

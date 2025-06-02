@@ -7,8 +7,7 @@ import { motion } from "framer-motion"
 import { useEffect, useState } from "react"
 import Header from "@/components/header"
 import Footer from "@/components/footer"
-import { useAuth } from "@/app/context/auth-context"
-import { useRouter } from "next/navigation"
+import router from "next/router"
 
 // Sample anime covers for the grid
 const animeCovers = [
@@ -113,11 +112,6 @@ const AnimeCard = ({ anime, delay = 0 }: { anime: (typeof animeCovers)[0]; delay
 
 export default function Home() {
   const [isMobile, setIsMobile] = useState(false)
-  const { user, isAuthenticated, isLoading } = useAuth()
-  const router = useRouter()
-
-  // Add debugging
-  console.log('Auth state:', { user, isAuthenticated, isLoading })
 
   useEffect(() => {
     const checkMobile = () => {
@@ -130,8 +124,26 @@ export default function Home() {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  useEffect(() => {
+    const session = localStorage.getItem("animeswipe_session")
+    if (session) {
+      try {
+        const parsedSession = JSON.parse(session);
+        if (parsedSession.access_token) {
+          setIsAuthenticated(true);
+        }
+        setIsLoading(false);
+      } catch (error) {
+        // ignore
+        setIsLoading(false);
+      }
+    }
+    setIsLoading(false);
+  }, [])
+
   const handleGetStarted = () => {
-    console.log('Button clicked, auth state:', { user, isAuthenticated, isLoading })
     if (isAuthenticated) {
       console.log('Redirecting to /swipe')
       router.push('/swipe')

@@ -39,7 +39,12 @@ export default function Header({ isMobile = false }: HeaderProps) {
   const handleLogout = () => {
     localStorage.removeItem("animeswipe_session")
     setIsLoggedIn(false)
-    router.push("/")
+    if (pathname === "/") {
+      window.location.reload()
+    } else {
+      router.push("/")
+    }
+
   }
 
   if (isLoading) {

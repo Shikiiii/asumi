@@ -24,6 +24,14 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({
             username: info?.name,
             avatar: info?.picture,
+            watching: info?.anime_statistics.watching,
+            completed: info?.anime_statistics.completed,
+            onhold: info?.anime_statistics.on_hold,
+            ptw: info?.anime_statistics.plan_to_watch,
+            dropped: info?.anime_statistics.dropped,
+            days_watched: info?.anime_statistics.total_days,
+            episodes_watched: info?.anime_statistics.episodes,
+            avg_score: info?.anime_statistics.mean_score,
         })
     } catch (error) {
         console.error(`Error during MAL info fetching:`, error)
