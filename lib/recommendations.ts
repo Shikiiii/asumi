@@ -9,20 +9,21 @@ async function filterOutAlreadyWatched(
   animeIds: number[]
 ): Promise<number[]> {
   const query = `
-    query ($userName: String, $ids: [Int]) {
-      MediaListCollection(userName: $userName, type: ANIME) {
+    query ($userName: String) {
+      MediaListCollection(userName: $userName, type: ANIME, status_in: [COMPLETED, CURRENT, PLANNING, DROPPED, PAUSED]) {
         lists {
           entries {
             mediaId
           }
         }
       }
-    }`;
+    }
+  `;
 
   try {
     const response = await axios.post(
       ANILIST_API_URL,
-      { query, variables: { userName, ids: animeIds } },
+      { query, variables: { userName } },
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -37,8 +38,8 @@ async function filterOutAlreadyWatched(
 
     return animeIds.filter(id => !seenIds.has(id));
   } catch (error) {
-    console.error("Failed to filter watched anime:", error);
-    return animeIds; // fallback: return all anime if query fails
+    console.error("Failed to fetch or filter watched anime:", error);
+    return animeIds; // fallback: return all anime if filtering fails
   }
 }
 
