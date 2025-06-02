@@ -140,7 +140,9 @@ async function fetchRecommendationsForAnime(token: string, animeId: number): Pro
               genres
               description
               coverImage {
+                medium
                 large
+                extraLarge
               }
               bannerImage
               trailer {
@@ -180,7 +182,7 @@ async function fetchRecommendationsForAnime(token: string, animeId: number): Pro
                 score: media.meanScore,
                 genres: media.genres,
                 synopsis: media.description,
-                coverImage: media.coverImage.large,
+                coverImage: media.coverImage.extraLarge || media.coverImage.large,
                 bannerImage: media.bannerImage,
                 trailerUrl: media.trailer ? `https://www.youtube.com/watch?v=${media.trailer.id}` : '',
                 count: 1,

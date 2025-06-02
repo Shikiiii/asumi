@@ -114,6 +114,7 @@ export async function getRecommendations(provider?: string, access_token?: strin
 
     // Helper to clean HTML tags from synopsis
     function cleanSynopsis(s: string): string {
+      if (s === null) return '';
       return s.replace(/<[^>]*>/g, '').replace(/&[a-z]+;/gi, ' ').replace(/\s+/g, ' ').trim();
     }
 
@@ -150,6 +151,7 @@ export async function getRecommendations(provider?: string, access_token?: strin
 
     // Merge recent and topRated, remove duplicates by id, and map to Anime[]
     const merged: any[] = [...(data.recent || []), ...(data.topRated || [])];
+    console.log("Merged", merged);
     const seen = new Set();
     const recommendations: Anime[] = merged
       .filter(item => {

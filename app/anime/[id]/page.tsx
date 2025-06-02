@@ -10,6 +10,44 @@ import { motion } from "framer-motion"
 import TrailerModal from "@/components/trailer-modal"
 import type { Anime } from "@/types/anime"
 
+// Helper to clean HTML tags from synopsis
+function cleanSynopsis(s: string): string {
+  return s.replace(/<[^>]*>/g, '').replace(/&[a-z]+;/gi, ' ').replace(/\s+/g, ' ').trim();
+}
+
+// Helper to format status
+function formatStatus(status: string): string {
+  switch (status.toUpperCase()) {
+    case "FINISHED":
+    case "FINISHED_AIRING":
+      return "Finished Airing";
+    case "RELEASING":
+    case "ONGOING":
+      return "Ongoing";
+    case "NOT_YET_RELEASED":
+      return "Not Yet Released";
+    case "CANCELLED":
+      return "Cancelled";
+    default:
+      // Capitalize first letter, lowercase the rest
+      return status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
+  }
+}
+
+// Helper to format type
+function formatType(type: string | undefined): string {
+  if (!type) return "TV";
+  return type.replace(/_/g, " ");
+}
+
+// Helper to format score
+function formatScore(score: number | null): number | undefined {
+  if (score === null) return undefined;
+  if (score > 10) return Math.round(score) / 10;
+  return score;
+}
+
+
 export default function AnimePage() {
   const params = useParams()
   const router = useRouter()
@@ -18,27 +56,154 @@ export default function AnimePage() {
   const [trailerOpen, setTrailerOpen] = useState(false)
   const [isLiked, setIsLiked] = useState(false)
   const [isBookmarked, setIsBookmarked] = useState(false)
+  const [userData, setUserData] = useState<any>(null);
+  const [copiedText, setCopiedText] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchAnimeDetails = async () => {
       setIsLoading(true)
       try {
-        const mockAnime: Anime = {
-          id: params.id as string,
-          title: "Fullmetal Alchemist: Brotherhood",
-          type: "TV",
-          episodes: 64,
-          status: "Finished Airing",
-          score: 9.1,
-          genres: ["Action", "Adventure", "Drama", "Fantasy"],
-          synopsis:
-            "After a horrific alchemy experiment goes wrong in the Elric household, brothers Edward and Alphonse are left in a catastrophic new reality. Ignoring the alchemical principle banning human transmutation, the boys attempted to bring their recently deceased mother back to life. Instead, they suffered brutal personal loss: Alphonse's body disintegrated while Edward lost a leg and then sacrificed an arm to keep Alphonse's soul in the physical realm by binding it to a hulking suit of armor.",
-          coverImage: "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx143200-42OaDCS6VEy3.png",
-          bannerImage: "https://s4.anilist.co/file/anilistcdn/media/anime/banner/5114-q0V5URebphSG.jpg",
-          recommendationReason: "Based on your high ratings for action and fantasy anime",
-          trailerUrl: "https://www.youtube.com/watch?v=--IcmZkvL0Q",
+        const session = localStorage.getItem("animeswipe_session")
+        const parsedSession = JSON.parse(session || '{}');
+        let tempUserData: any = null;
+        setUserData({
+          provider: parsedSession.provider || "",
+          access_token: parsedSession.access_token || "",
+          refresh_token: parsedSession.refresh_token || null,
+        });
+        tempUserData = {provider: parsedSession.provider || "", access_token: parsedSession.access_token || "", refresh_token: parsedSession.refresh_token || ""};
+
+
+        
+        if (tempUserData.provider === "mal") {
+            // Fetch anime info from Anilist using MyAnimeList ID (params.id)
+            const query = `
+              query ($idMal: Int) {
+                Media(idMal: $idMal, type: ANIME) {
+                  id
+                  idMal
+                  title {
+                    romaji
+                    english
+                    native
+                  }
+                  type
+                  episodes
+                  status
+                  averageScore
+                  genres
+                  description(asHtml: false)
+                  coverImage {
+                    medium
+                    large
+                    extraLarge
+                  }
+                  bannerImage
+                  trailer {
+                    site
+                    id
+                  }
+                }
+              }
+            `;
+
+            const variables = { idMal: Number(params.id) };
+            const response = await fetch("https://graphql.anilist.co", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ query, variables }),
+            });
+            const { data } = await response.json();
+            if (data && data.Media) {
+              const media = data.Media;
+              setAnime({
+                id: String(media.idMal || media.id),
+                title: media.title.english || media.title.romaji || media.title.native,
+                type: formatType(media.type),
+                episodes: media.episodes,
+                status: formatStatus(media.status?.replace("_", " ")) || "",
+                score: formatScore(media.averageScore ? media.averageScore / 10 : null),
+                genres: media.genres,
+                synopsis: cleanSynopsis(media.description?.replace(/<[^>]+>/g, "")) || "",
+                coverImage: media.coverImage?.large || "",
+                bannerImage: media.bannerImage || "",
+                recommendationReason: undefined,
+                trailerUrl:
+                media.trailer && media.trailer.site === "youtube"
+                  ? `https://www.youtube.com/watch?v=${media.trailer.id}`
+                  : undefined,
+              });
+            } else {
+              setAnime(null);
+            }
+
+        } else if (tempUserData.provider === "anilist") {
+            const query = `
+              query ($id: Int) {
+                Media(id: $id, type: ANIME) {
+                  id
+                  idMal
+                  title {
+                    romaji
+                    english
+                    native
+                  }
+                  type
+                  episodes
+                  status
+                  averageScore
+                  genres
+                  description(asHtml: false)
+                  coverImage {
+                    medium
+                    large
+                    extraLarge
+                  }
+                  bannerImage
+                  trailer {
+                    site
+                    id
+                  }
+                }
+              }
+            `;
+
+            const variables = { id: Number(params.id) };
+            const response = await fetch("https://graphql.anilist.co", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ query, variables }),
+            });
+            const { data } = await response.json();
+            if (data && data.Media) {
+              const media = data.Media;
+              setAnime({
+                id: String(media.id),
+                title: media.title.english || media.title.romaji || media.title.native,
+                type: formatType(media.type),
+                episodes: media.episodes,
+                status: formatStatus(media.status?.replace("_", " ")) || "",
+                score: formatScore(media.averageScore ? media.averageScore / 10 : null),
+                genres: media.genres,
+                synopsis: cleanSynopsis(media.description?.replace(/<[^>]+>/g, "")) || "",
+                coverImage: media.coverImage?.large || "",
+                bannerImage: media.bannerImage || "",
+                recommendationReason: undefined,
+                trailerUrl:
+                media.trailer && media.trailer.site === "youtube"
+                  ? `https://www.youtube.com/watch?v=${media.trailer.id}`
+                  : undefined,
+              });
+            } else {
+              setAnime(null);
+            }
+
         }
-        setAnime(mockAnime)
+
       } catch (error) {
         console.error("Error fetching anime details:", error)
       } finally {
@@ -71,6 +236,20 @@ export default function AnimePage() {
       </div>
     )
   }
+
+  // make function take current URL copy to clipboard
+  function handleShare() {
+    if (typeof window !== "undefined" && window.location) {
+      navigator.clipboard.writeText(window.location.href);
+
+      setCopiedText("Copied to clipboard");
+
+      setTimeout(() => {
+        setCopiedText(null);
+      }, 1000);
+    }
+  }
+
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -176,33 +355,14 @@ export default function AnimePage() {
                   
                   <Button 
                     variant="outline" 
-                    className={`border-2 rounded-full px-4 py-3 transition-all hover:scale-105 ${
-                      isLiked 
-                        ? 'bg-pink-600 border-pink-600 text-white' 
-                        : 'border-white/30 text-white hover:bg-white/10'
-                    }`}
-                    onClick={() => setIsLiked(!isLiked)}
-                  >
-                    <Heart className={`h-5 w-5 ${isLiked ? 'fill-current' : ''}`} />
-                  </Button>
-                  
-                  <Button 
-                    variant="outline" 
-                    className={`border-2 rounded-full px-4 py-3 transition-all hover:scale-105 ${
-                      isBookmarked 
-                        ? 'bg-blue-600 border-blue-600 text-white' 
-                        : 'border-white/30 text-white hover:bg-white/10'
-                    }`}
-                    onClick={() => setIsBookmarked(!isBookmarked)}
-                  >
-                    <Bookmark className={`h-5 w-5 ${isBookmarked ? 'fill-current' : ''}`} />
-                  </Button>
-                  
-                  <Button 
-                    variant="outline" 
                     className="border-2 border-white/30 text-white hover:bg-white/10 rounded-full px-4 py-3 transition-all hover:scale-105"
+                    onClick={handleShare}
                   >
-                    <Share2 className="h-5 w-5" />
+                    {copiedText !== null ? (
+                      copiedText
+                    ) : (
+                      <Share2 className="h-5 w-5" />
+                    )}
                   </Button>
                 </div>
               </motion.div>
