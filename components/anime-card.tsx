@@ -169,44 +169,44 @@ export default function AnimeCard({ anime, onSwipe, onRewind, onInfo, onShare, s
 
       {/* Action buttons - only show when not swiping */}
       {showButtons && (
-        <div className="flex justify-center items-center gap-3 mt-6">
-          <button 
-            onClick={onRewind}
-            className="p-2.5 bg-yellow-500 hover:bg-yellow-600 rounded-full shadow-lg transition-all hover:scale-110 active:scale-95"
-          >
-            <RotateCcw className="h-5 w-5 text-white" />
-          </button>
+      <div className={`flex justify-center items-center gap-3 mt-6 ${showButtons ? 'visible' : 'invisible'}`}>
+        <button 
+          onClick={onRewind}
+          className="p-2.5 bg-yellow-500 hover:bg-yellow-600 rounded-full shadow-lg transition-all hover:scale-110 active:scale-95"
+        >
+          <RotateCcw className="h-5 w-5 text-white" />
+        </button>
 
-          <button 
-            onClick={() => onSwipe?.('left')}
-            className="p-3.5 bg-red-500 hover:bg-red-600 rounded-full shadow-lg transition-all hover:scale-110 active:scale-95"
-          >
-            <X className="h-6 w-6 text-white" />
-          </button>
+        <button 
+          onClick={() => onSwipe?.('left')}
+          className="p-3.5 bg-red-500 hover:bg-red-600 rounded-full shadow-lg transition-all hover:scale-110 active:scale-95"
+        >
+          <X className="h-6 w-6 text-white" />
+        </button>
 
-          <button 
-            onClick={handleInfoClick}
-            className={`p-2.5 rounded-full shadow-lg transition-all hover:scale-110 active:scale-95 ${
-              showInfo ? 'bg-blue-600' : 'bg-blue-500 hover:bg-blue-600'
-            }`}
-          >
-            <Info className="h-5 w-5 text-white" />
-          </button>
+        <button 
+          onClick={handleInfoClick}
+          className={`p-2.5 rounded-full shadow-lg transition-all hover:scale-110 active:scale-95 ${
+            showInfo ? 'bg-blue-600' : 'bg-blue-500 hover:bg-blue-600'
+          }`}
+        >
+          <Info className="h-5 w-5 text-white" />
+        </button>
 
-          <button 
-            onClick={() => onSwipe?.('right')}
-            className="p-3.5 bg-green-500 hover:bg-green-600 rounded-full shadow-lg transition-all hover:scale-110 active:scale-95"
-          >
-            <Heart className="h-6 w-6 text-white" />
-          </button>
+        <button 
+          onClick={() => onSwipe?.('right')}
+          className="p-3.5 bg-green-500 hover:bg-green-600 rounded-full shadow-lg transition-all hover:scale-110 active:scale-95"
+        >
+          <Heart className="h-6 w-6 text-white" />
+        </button>
 
-          <button 
-            onClick={onShare}
-            className="p-2.5 bg-purple-500 hover:bg-purple-600 rounded-full shadow-lg transition-all hover:scale-110 active:scale-95"
-          >
-            <Share2 className="h-5 w-5 text-white" />
-          </button>
-        </div>
+        <button 
+          onClick={onShare}
+          className="p-2.5 bg-purple-500 hover:bg-purple-600 rounded-full shadow-lg transition-all hover:scale-110 active:scale-95"
+        >
+          <Share2 className="h-5 w-5 text-white" />
+        </button>
+      </div>
       )}
     </div>
   )

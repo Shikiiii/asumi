@@ -98,14 +98,14 @@ export default function SwipePage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-black text-white overflow-hidden">
+      <div className="min-h-screen bg-black text-white overflow-hidden flex flex-col">
         {/* Animated background */}
         <div className="fixed inset-0 bg-gradient-to-br from-purple-900/20 via-black to-pink-900/20"></div>
         <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-500/10 via-transparent to-transparent"></div>
         
         <Header isMobile={isMobile} />
         
-        <main className="relative container mx-auto max-w-md px-4 py-8 md:py-16 flex flex-col justify-center min-h-[80vh]">
+        <main className="relative container mx-auto max-w-md px-4 py-8 md:py-16 flex flex-col justify-center flex-1">
           {/* Loading content */}
           <motion.div 
             className="flex flex-col items-center justify-center"
@@ -117,7 +117,6 @@ export default function SwipePage() {
               <Sparkles className="h-8 w-8 text-white animate-pulse" />
             </div>
             <div className="text-white text-xl mb-2 text-center font-medium">Finding your perfect anime...</div>
-            {/* <div className="text-white/60 text-sm text-center">Powered by AI recommendations</div> */}
             
             {/* Loading animation */}
             <div className="flex gap-1 mt-6">
@@ -140,21 +139,23 @@ export default function SwipePage() {
           </motion.div>
         </main>
 
-        <Footer />
+        <div className="flex-shrink-0">
+          <Footer />
+        </div>
       </div>
     )
   }
 
   if (recommendations.length === 0) {
     return (
-      <div className="min-h-screen bg-black text-white overflow-hidden">
+      <div className="min-h-screen bg-black text-white overflow-hidden flex flex-col">
         {/* Animated background */}
         <div className="fixed inset-0 bg-gradient-to-br from-purple-900/20 via-black to-pink-900/20"></div>
         <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-500/10 via-transparent to-transparent"></div>
         
         <Header isMobile={isMobile} />
 
-        <main className="relative container mx-auto max-w-md px-4 py-8 md:py-16 flex flex-col justify-center min-h-[80vh]">
+        <main className="relative container mx-auto max-w-md px-4 py-8 md:py-16 flex flex-col justify-center flex-1">
           <motion.div 
             className="flex flex-col items-center justify-center"
             initial={{ opacity: 0, y: 20 }}
@@ -176,21 +177,23 @@ export default function SwipePage() {
           </motion.div>
         </main>
 
-        <Footer />
+        <div className="flex-shrink-0">
+          <Footer />
+        </div>
       </div>
     )
   }
 
   if (currentIndex >= recommendations.length) {
     return (
-      <div className="min-h-screen bg-black text-white overflow-hidden">
+      <div className="min-h-screen bg-black text-white overflow-hidden flex flex-col">
         {/* Animated background */}
         <div className="fixed inset-0 bg-gradient-to-br from-purple-900/20 via-black to-pink-900/20"></div>
         <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-500/10 via-transparent to-transparent"></div>
         
         <Header isMobile={isMobile} />
 
-        <main className="relative container mx-auto max-w-md px-4 py-8 md:py-16 flex flex-col justify-center min-h-[80vh]">
+        <main className="relative container mx-auto max-w-md px-4 py-8 md:py-16 flex flex-col justify-center flex-1">
           <motion.div 
             className="flex flex-col items-center justify-center"
             initial={{ opacity: 0, y: 20 }}
@@ -212,57 +215,59 @@ export default function SwipePage() {
           </motion.div>
         </main>
 
-        <Footer />
+        <div className="flex-shrink-0">
+          <Footer />
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-black text-white overflow-hidden">
+    <div className="min-h-screen bg-black text-white overflow-hidden flex flex-col">
       {/* Animated background */}
       <div className="fixed inset-0 z-0 bg-gradient-to-br from-purple-900/20 via-black to-pink-900/20"></div>
       <div className="fixed inset-0 z-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-500/10 via-transparent to-transparent"></div>
       
       {/* Minimal top bar instead of full header */}
       <motion.div 
-              className="relative z-20 flex justify-between items-center p-4"
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-            >
-              {/* Clickable logo to go home */}
-              <button 
-                onClick={() => router.push("/")}
-                className="text-xl font-bold bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent hover:from-pink-300 hover:to-purple-300 transition-all cursor-pointer"
-              >
-                AnimeSwipe
-              </button>
-              
-              <div className="flex items-center gap-2">
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  className="text-white/80 hover:text-white hover:bg-white/10"
-                  onClick={() => router.push("/")}
-                >
-                  <Home className="h-4 w-4" />
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  className="text-white/80 hover:text-white hover:bg-white/10"
-                  onClick={() => router.push("/profile")}
-                >
+        className="relative z-20 flex justify-between items-center p-4 flex-shrink-0"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+      >
+        {/* Clickable logo to go home */}
+        <button 
+          onClick={() => router.push("/")}
+          className="text-xl font-bold bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent hover:from-pink-300 hover:to-purple-300 transition-all cursor-pointer"
+        >
+          AnimeSwipe
+        </button>
+        
+        <div className="flex items-center gap-2">
+          <Button 
+            variant="ghost" 
+            size="sm"
+            className="text-white/80 hover:text-white hover:bg-white/10"
+            onClick={() => router.push("/")}
+          >
+            <Home className="h-4 w-4" />
+          </Button>
+          <Button 
+            variant="ghost" 
+            size="sm"
+            className="text-white/80 hover:text-white hover:bg-white/10"
+            onClick={() => router.push("/profile")}
+          >
             <User className="h-4 w-4" />
           </Button>
         </div>
       </motion.div>
       
-      {/* Main content with more space */}
-      <main className="relative z-20 container mx-auto max-w-md px-4 pb-8 flex flex-col" style={{ minHeight: 'calc(100vh - 140px)' }}>
+      {/* Main content takes remaining space */}
+      <main className="relative z-20 container mx-auto max-w-md px-4 pb-8 flex flex-col flex-1">
         {/* Progress indicator */}
         <motion.div 
-          className="mb-4"
+          className="mb-4 flex-shrink-0"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
@@ -282,17 +287,17 @@ export default function SwipePage() {
         </motion.div>
 
         {/* Card container - takes remaining space */}
-        <div className="flex-1 flex items-center justify-center">
+        <div className="flex-1 flex items-center justify-center min-h-0">
           {currentAnime ? (
             <motion.div 
-              className="relative w-full"
+              className="relative w-full h-full flex items-center justify-center"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6, delay: 0.4 }}
             >
               {/* Next card - behind the current one */}
               {recommendations[currentIndex + 1] && (
-                <div className="absolute inset-0 z-0 transform scale-95 opacity-50">
+                <div className="absolute inset-0 z-0 transform scale-95 opacity-50 flex items-center justify-center">
                   <SwipeableCard 
                     key={`next-${recommendations[currentIndex + 1].id}`}
                     anime={recommendations[currentIndex + 1]} 
@@ -318,7 +323,7 @@ export default function SwipePage() {
 
         {/* Helper text - fixed at bottom */}
         <motion.div 
-          className="text-center mt-4"
+          className="text-center mt-4 flex-shrink-0"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.8 }}
@@ -327,7 +332,9 @@ export default function SwipePage() {
         </motion.div>
       </main>
 
-      <Footer />
+      <div className="flex-shrink-0">
+        <Footer />
+      </div>
     </div>
   )
 }
