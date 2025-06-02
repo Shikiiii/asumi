@@ -333,7 +333,7 @@ export default function SwipePage() {
       >
         {/* Logo matching header design */}
         <Link href="/" className="text-xl md:text-2xl font-bold bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent">
-          AnimeSwipe
+          Asumi
         </Link>
         
         {/* Right side buttons */}

@@ -16,7 +16,7 @@ export default function Footer() {
         <div className="flex flex-col sm:flex-row justify-between items-center gap-3">
           {/* Left side - Copyright */}
           <div className="text-white/50 text-xs">
-            © {new Date().getFullYear()} AnimeSwipe. Not affiliated with MyAnimeList or Anilist.
+            © {new Date().getFullYear()} Asumi. Not affiliated with MyAnimeList or Anilist.
           </div>
           
           {/* Right side - Links */}
