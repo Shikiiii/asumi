@@ -25,7 +25,11 @@ export default function SwipePage() {
     access_token: string;
     refresh_token: string | null;
   }
-  const userData: UserData = {provider: "", access_token: "", refresh_token: null};
+  const [userData, setUserData] = useState<UserData>({
+    provider: "",
+    access_token: "",
+    refresh_token: null,
+  });
   
   const [currentAnime, setCurrentAnime] = useState<Anime | null>(null)
 
@@ -47,12 +51,18 @@ export default function SwipePage() {
   useEffect(() => {
     // Check if animeswipe_session exists in local storage
     const session = localStorage.getItem("animeswipe_session")
+
+    let tempUserData: UserData = {provider: '', access_token: '', refresh_token: ''};
+
     if (session) {
       try {
         const parsedSession = JSON.parse(session);
-        userData.provider = parsedSession.provider || "";
-        userData.access_token = parsedSession.access_token || "";
-        userData.refresh_token = parsedSession.refresh_token || null;
+        setUserData({
+          provider: parsedSession.provider || "",
+          access_token: parsedSession.access_token || "",
+          refresh_token: parsedSession.refresh_token || null,
+        });
+        tempUserData = {provider: parsedSession.provider || "", access_token: parsedSession.access_token || "", refresh_token: parsedSession.refresh_token || ""};
       } catch (error) {
         console.error("Error parsing animeswipe_session:", error);
         router.push("/login");
@@ -66,7 +76,7 @@ export default function SwipePage() {
     const fetchRecommendations = async () => {
       setIsLoading(true)
       try {
-        const data = await getRecommendations("provider", "access_token", "refresh_token") // pass provider and access_token, refresh_token
+        const data = await getRecommendations(tempUserData.provider, tempUserData.access_token, tempUserData.refresh_token) // pass provider and access_token, refresh_token
         setRecommendations(data)
         setCurrentAnime(data[0] || null)
       } catch (error) {
@@ -81,7 +91,65 @@ export default function SwipePage() {
 
   const handleSwipe = (direction: "left" | "right") => {
     if (direction === "right") {
-      console.log("Liked:", recommendations[currentIndex])
+      console.log("Provider:", userData.provider);
+      console.log("User data:", userData);
+      console.log("Current anime:", currentAnime);
+      if (userData.provider === "mal") {
+        if (currentAnime) {
+          fetch("/api/like", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              provider: userData.provider,
+              accessToken: userData.access_token,
+              refreshToken: userData.refresh_token,
+              animeId: Number(currentAnime.id),
+            }),
+          }).catch((err) => {
+            console.error("Failed to like anime:", err);
+          });
+        }
+      }
+
+      else if (userData.provider === "anilist") {
+        if (currentAnime) {
+          const query = `
+            mutation ($animeId: Int!, $status: MediaListStatus) {
+              SaveMediaListEntry(mediaId: $animeId, status: $status) {
+                id
+                status
+              }
+            }
+          `;
+
+          const variables = {
+            animeId: currentAnime.id,
+            status: "PLANNING" as const
+          };
+
+          fetch("https://graphql.anilist.co", {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${userData.access_token}`,
+              "Content-Type": "application/json",
+              "Accept": "application/json"
+            },
+            body: JSON.stringify({
+              query: query,
+              variables: variables
+            })
+          })
+            .then(res => res.json())
+            .then(data => {
+              console.log("Success:", data);
+            })
+            .catch(error => {
+              console.error("Error:", error);
+            });
+        }
+      }
     }
 
     // Update immediately - no setTimeout!

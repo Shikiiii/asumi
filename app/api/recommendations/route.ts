@@ -18,6 +18,9 @@ export async function POST(request: NextRequest) {
     if (provider === "mal") {
       recommendations = await getMALRecommendations(accessToken, refreshToken);
     } else if (provider === "anilist") {
+      console.log(
+        "Access token", accessToken
+      )
       recommendations = await getALRecommendations(accessToken);
     } else {
       return NextResponse.json({ error: "Unsupported provider" }, { status: 400 })
