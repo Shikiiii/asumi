@@ -5,6 +5,8 @@ import Link from "next/link"
 import { ArrowRight, Play, Star, Zap, Heart, Users } from "lucide-react"
 import { motion } from "framer-motion"
 import { useEffect, useState } from "react"
+import Header from "@/components/header"
+import Footer from "@/components/footer"
 
 // Sample anime covers for the grid
 const animeCovers = [
@@ -170,29 +172,7 @@ export default function Home() {
         }
       `}</style>
 
-      {/* Header - Mobile optimized */}
-      <motion.header 
-        className="container mx-auto px-4 py-4 md:py-6 flex justify-between items-center relative z-20"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-      >
-        <div className="text-xl md:text-2xl font-bold bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent">
-          AnimeSwipe
-        </div>
-        <div className="flex gap-2 md:gap-4">
-          <Link href="/about">
-            <Button variant="ghost" size={isMobile ? "sm" : "default"} className="text-white hover:text-white hover:bg-white/10 transition-all">
-              About
-            </Button>
-          </Link>
-          <Link href="/login">
-            <Button size={isMobile ? "sm" : "default"} className="bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-white border-0 shadow-lg hover:shadow-xl transition-all">
-              Login
-            </Button>
-          </Link>
-        </div>
-      </motion.header>
+      <Header isMobile={isMobile} />
 
       <main className="container mx-auto px-4 py-4 md:py-8 lg:py-16">
         {/* Layout: flex-col for mobile, lg:flex-row for desktop */}
@@ -235,7 +215,7 @@ export default function Home() {
             transition={{ duration: 0.8, delay: 0.2 }}
           >
             {/* Badge */}
-            <motion.div
+{/*             <motion.div
               className="inline-flex items-center gap-2 px-3 py-2 md:px-4 bg-gradient-to-r from-purple-900/50 to-pink-900/50 rounded-full border border-purple-500/30 text-xs md:text-sm"
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -243,7 +223,9 @@ export default function Home() {
             >
               <Zap className="h-3 w-3 md:h-4 md:w-4 text-yellow-400" />
               <span>Powered by AI Recommendations</span>
-            </motion.div>
+            </motion.div> */}
+
+            
 
             <h1 className="text-3xl md:text-5xl lg:text-7xl font-black text-white leading-tight">
               Discover your next{" "}
@@ -253,11 +235,7 @@ export default function Home() {
               with a swipe
             </h1>
 
-            <p className="text-lg md:text-xl text-gray-300 leading-relaxed max-w-lg mx-auto lg:mx-0">
-              Connect your MyAnimeList or Anilist account and get personalized recommendations powered by advanced algorithms.
-            </p>
-
-                        {/* CTA Buttons - Mobile optimized */}
+            {/* CTA Buttons - Mobile optimized */}
             <div className="flex flex-col sm:flex-row justify-center lg:justify-start gap-3 md:gap-4 pt-4">
               <Link href="/login" className="w-full sm:w-auto">
                 <Button 
@@ -276,6 +254,10 @@ export default function Home() {
               </Button>
             </div>
 
+            <p className="text-lg md:text-xl text-gray-300 leading-relaxed max-w-lg mx-auto lg:mx-0">
+              Connect your MyAnimeList or Anilist account and get personalized recommendations.
+            </p>
+
             {/* Feature highlights - Mobile optimized */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4 py-4 md:py-6">
               <div className="flex items-center gap-3 p-3 md:p-0 bg-gray-900/50 md:bg-transparent rounded-lg md:rounded-none">
@@ -284,7 +266,7 @@ export default function Home() {
                 </div>
                 <div className="text-left">
                   <div className="font-semibold text-white text-sm md:text-base">Smart Matching</div>
-                  <div className="text-xs md:text-sm text-gray-400">AI-powered suggestions</div>
+                  <div className="text-xs md:text-sm text-gray-400">Personalized suggestions</div>
                 </div>
               </div>
               <div className="flex items-center gap-3 p-3 md:p-0 bg-gray-900/50 md:bg-transparent rounded-lg md:rounded-none">
@@ -331,24 +313,7 @@ export default function Home() {
         </div>
       </main>
 
-      {/* Enhanced Footer - Mobile optimized */}
-      <motion.footer 
-        className="container mx-auto px-4 py-6 md:py-8 text-center border-t border-white/10 mt-8 md:mt-16"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6, delay: 1 }}
-      >
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-          <div className="text-gray-400 text-xs md:text-sm">
-            &copy; {new Date().getFullYear()} AnimeSwipe. Not affiliated with MyAnimeList or Anilist.
-          </div>
-          <div className="flex gap-4 md:gap-6 text-xs md:text-sm">
-            <Link href="/privacy" className="text-gray-400 hover:text-white transition-colors">Privacy</Link>
-            <Link href="/terms" className="text-gray-400 hover:text-white transition-colors">Terms</Link>
-            <Link href="/contact" className="text-gray-400 hover:text-white transition-colors">Contact</Link>
-          </div>
-        </div>
-      </motion.footer>
+      <Footer />
     </div>
   )
 }

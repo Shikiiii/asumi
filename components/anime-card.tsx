@@ -106,15 +106,6 @@ export default function AnimeCard({ anime, onSwipe, onRewind, onInfo, onShare, s
                 )}
               </div>
 
-              {/* Quick info toggle button */}
-              <div className="flex justify-center">
-                <button 
-                  onClick={handleInfoClick}
-                  className="px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-white text-sm hover:bg-white/30 transition-colors"
-                >
-                  {showInfo ? 'Show Less' : 'More Info'}
-                </button>
-              </div>
             </div>
           </div>
         </div>

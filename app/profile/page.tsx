@@ -3,12 +3,17 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { LogOut } from "lucide-react"
+import { LogOut, Settings, Star, Heart, TrendingUp, Calendar, ArrowLeft, Edit } from "lucide-react"
+import { motion } from "framer-motion"
+import Header from "@/components/header"
+import Footer from "@/components/footer"
 
 export default function ProfilePage() {
   const router = useRouter()
+  const [isMobile, setIsMobile] = useState(false)
+  
   interface UserData {
     provider: string;
     access_token: string;
@@ -21,6 +26,17 @@ export default function ProfilePage() {
     avatar: string;
   }
   const [userInfo, setUserInfo] = useState<UserInfo>({ username: "", avatar: "" });
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   useEffect(() => {
     // Check if animeswipe_session exists in local storage
@@ -71,49 +87,290 @@ export default function ProfilePage() {
     }
   }, [router])
 
+  const handleLogout = () => {
+    localStorage.removeItem("animeswipe_session")
+    router.push("/login")
+  }
+
+  // Mock stats data
+  const stats = {
+    totalAnime: 156,
+    favorites: 23,
+    completed: 89,
+    planToWatch: 34,
+    avgScore: 8.2,
+    daysWatched: 45.2
+  }
+
+  // Mock swiping stats
+  const swipeStats = {
+    totalSwipes: 324,
+    matches: 89,
+    passed: 235,
+    matchRate: 27.5,
+    todaySwipes: 12,
+    streak: 5
+  }
+
   return (
-    <div className="min-h-screen p-4 bg-black">
-      <div className="container mx-auto max-w-4xl py-8">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-2xl font-bold text-white">Your Profile</h1>
-          <Button variant="ghost" className="text-white" onClick={() => router.push("/swipe")}>
+    <div className="min-h-screen bg-black text-white overflow-x-hidden">
+      {/* Animated background */}
+      <div className="fixed inset-0 bg-gradient-to-br from-purple-900/20 via-black to-pink-900/20"></div>
+      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-purple-500/10 via-transparent to-transparent"></div>
+      
+      <Header isMobile={isMobile} />
+
+      <main className="relative container mx-auto px-4 py-8 md:py-16">
+        {/* Header with back button */}
+        <motion.div 
+          className="flex items-center justify-between mb-8"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <Button
+            variant="ghost"
+            onClick={() => router.push("/swipe")}
+            className="text-white/60 hover:text-white hover:bg-white/10 transition-all"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Swiping
           </Button>
-        </div>
+          
+          <Button
+            variant="outline"
+            className="border-white/20 text-white hover:bg-white/10 hover:border-white/40"
+          >
+            <Settings className="mr-2 h-4 w-4" />
+            Settings
+          </Button>
+        </motion.div>
 
-        <div className="flex justify-center pt-8">
-          <div className="grid md:grid-cols-[300px_1fr] gap-6">
-            <div className="space-y-6">
-              <Card className="bg-black/40 backdrop-blur-md border-white/10">
-                <CardContent className="pt-6">
-                  <div className="flex flex-col items-center">
-                    <Avatar className="w-24 h-24 border-2 border-purple-500">
-                      <AvatarImage src={userInfo.avatar || "/placeholder.svg?height=96&width=96"} alt={userInfo.username} />
-                      <AvatarFallback>{userInfo.username.substring(0, 2).toUpperCase()}</AvatarFallback>
-                    </Avatar>
-
-                    <h2 className="mt-4 text-xl font-bold text-white">{userInfo.username}</h2>
-                    <div className="text-sm text-white/60 mt-1">
-                      {userData.provider === "mal"
-                      ? "Connected via MyAnimeList"
-                      : userData.provider === "anilist"
-                      ? "Connected via Anilist"
-                      : "Connected via ..."}
+        <div className="max-w-5xl mx-auto">
+          <div className="grid lg:grid-cols-[350px_1fr] gap-8">
+            {/* Profile Card */}
+            <motion.div
+              className="space-y-6"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+            >
+              <Card className="bg-white/5 backdrop-blur-xl border-white/10 shadow-2xl">
+                <CardContent className="pt-8 pb-6">
+                  <div className="flex flex-col items-center text-center">
+                    {/* Avatar with edit button */}
+                    <div className="relative group">
+                      <Avatar className="w-28 h-28 border-4 border-gradient-to-r from-pink-500 to-purple-500">
+                        <AvatarImage src={userInfo.avatar || "/placeholder.svg?height=112&width=112"} alt={userInfo.username} />
+                        <AvatarFallback className="text-2xl font-bold bg-gradient-to-r from-pink-500 to-purple-500">
+                          {userInfo.username.substring(0, 2).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <Button
+                        size="sm"
+                        className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-purple-600 hover:bg-purple-700 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <Edit className="h-3 w-3" />
+                      </Button>
                     </div>
 
+                    {/* User info */}
+                    <h2 className="mt-6 text-2xl font-bold text-white bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent">
+                      {userInfo.username}
+                    </h2>
+                    <div className="flex items-center gap-2 mt-2 px-3 py-1 bg-white/10 rounded-full">
+                      <div className={`w-2 h-2 rounded-full ${userData.provider === 'mal' ? 'bg-blue-400' : 'bg-cyan-400'}`} />
+                      <span className="text-sm text-white/80">
+                        {userData.provider === "mal"
+                        ? "MyAnimeList"
+                        : userData.provider === "anilist"
+                        ? "Anilist"
+                        : "Unknown Provider"}
+                      </span>
+                    </div>
+
+                    {/* Quick stats */}
+                    <div className="grid grid-cols-2 gap-4 mt-6 w-full">
+                      <div className="bg-white/5 rounded-lg p-3 text-center">
+                        <div className="text-lg font-bold text-white">{stats.totalAnime}</div>
+                        <div className="text-xs text-white/60">Total Anime</div>
+                      </div>
+                      <div className="bg-white/5 rounded-lg p-3 text-center">
+                        <div className="text-lg font-bold text-white">{stats.avgScore}</div>
+                        <div className="text-xs text-white/60">Avg Score</div>
+                      </div>
+                    </div>
+
+                    {/* Action buttons */}
+                    <div className="flex gap-2 mt-6 w-full">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex-1 border-white/20 text-white hover:bg-white/10 hover:border-white/40"
+                      >
+                        <Edit className="mr-2 h-3 w-3" />
+                        Edit
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={handleLogout}
+                        className="flex-1 bg-red-600/80 hover:bg-red-600 border-0"
+                      >
+                        <LogOut className="mr-2 h-3 w-3" />
+                        Logout
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            {/* Stats and Activity */}
+            <motion.div
+              className="space-y-6"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+            >
+              {/* Detailed Stats */}
+              <Card className="bg-white/5 backdrop-blur-xl border-white/10 shadow-2xl">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-white">
+                    <TrendingUp className="h-5 w-5 text-purple-400" />
+                    Your Anime Stats
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <div className="bg-gradient-to-br from-green-600/20 to-green-700/20 rounded-lg p-4 border border-green-500/20">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Star className="h-4 w-4 text-green-400" />
+                        <span className="text-sm text-white/80">Completed</span>
+                      </div>
+                      <div className="text-2xl font-bold text-white">{stats.completed}</div>
+                    </div>
+                    
+                    <div className="bg-gradient-to-br from-blue-600/20 to-blue-700/20 rounded-lg p-4 border border-blue-500/20">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Calendar className="h-4 w-4 text-blue-400" />
+                        <span className="text-sm text-white/80">Plan to Watch</span>
+                      </div>
+                      <div className="text-2xl font-bold text-white">{stats.planToWatch}</div>
+                    </div>
+                    
+                    <div className="bg-gradient-to-br from-pink-600/20 to-purple-600/20 rounded-lg p-4 border border-pink-500/20">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Heart className="h-4 w-4 text-pink-400" />
+                        <span className="text-sm text-white/80">Favorites</span>
+                      </div>
+                      <div className="text-2xl font-bold text-white">{stats.favorites}</div>
+                    </div>
+                    
+                    <div className="bg-gradient-to-br from-yellow-600/20 to-orange-600/20 rounded-lg p-4 border border-yellow-500/20 md:col-span-2">
+                      <div className="flex items-center gap-2 mb-2">
+                        <TrendingUp className="h-4 w-4 text-yellow-400" />
+                        <span className="text-sm text-white/80">Days Watched</span>
+                      </div>
+                      <div className="text-2xl font-bold text-white">{stats.daysWatched}</div>
+                      <div className="text-xs text-white/60 mt-1">That's {Math.round(stats.daysWatched * 24)} hours!</div>
+                    </div>
+                    
+                    <div className="bg-gradient-to-br from-purple-600/20 to-indigo-600/20 rounded-lg p-4 border border-purple-500/20">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Star className="h-4 w-4 text-purple-400" />
+                        <span className="text-sm text-white/80">Avg Rating</span>
+                      </div>
+                      <div className="text-2xl font-bold text-white">{stats.avgScore}/10</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Recent Activity */}
+              {/* Swiping Stats */}
+              <Card className="bg-white/5 backdrop-blur-xl border-white/10 shadow-2xl">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-white">
+                    <Heart className="h-5 w-5 text-pink-400" />
+                    Your Swiping Stats
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <div className="bg-gradient-to-br from-pink-600/20 to-red-600/20 rounded-lg p-4 border border-pink-500/20">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Heart className="h-4 w-4 text-pink-400" />
+                        <span className="text-sm text-white/80">Matches</span>
+                      </div>
+                      <div className="text-2xl font-bold text-white">{swipeStats.matches}</div>
+                      <div className="text-xs text-white/60 mt-1">You liked these!</div>
+                    </div>
+                    
+                    <div className="bg-gradient-to-br from-gray-600/20 to-gray-700/20 rounded-lg p-4 border border-gray-500/20">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Calendar className="h-4 w-4 text-gray-400" />
+                        <span className="text-sm text-white/80">Passed</span>
+                      </div>
+                      <div className="text-2xl font-bold text-white">{swipeStats.passed}</div>
+                      <div className="text-xs text-white/60 mt-1">Not your type</div>
+                    </div>
+                    
+                    <div className="bg-gradient-to-br from-purple-600/20 to-indigo-600/20 rounded-lg p-4 border border-purple-500/20">
+                      <div className="flex items-center gap-2 mb-2">
+                        <TrendingUp className="h-4 w-4 text-purple-400" />
+                        <span className="text-sm text-white/80">Match Rate</span>
+                      </div>
+                      <div className="text-2xl font-bold text-white">{swipeStats.matchRate}%</div>
+                      <div className="text-xs text-white/60 mt-1">Pretty selective!</div>
+                    </div>
+                    
+                    <div className="bg-gradient-to-br from-blue-600/20 to-cyan-600/20 rounded-lg p-4 border border-blue-500/20">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Star className="h-4 w-4 text-blue-400" />
+                        <span className="text-sm text-white/80">Total Swipes</span>
+                      </div>
+                      <div className="text-2xl font-bold text-white">{swipeStats.totalSwipes}</div>
+                      <div className="text-xs text-white/60 mt-1">Keep swiping!</div>
+                    </div>
+                    
+                    <div className="bg-gradient-to-br from-orange-600/20 to-yellow-600/20 rounded-lg p-4 border border-orange-500/20">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Calendar className="h-4 w-4 text-orange-400" />
+                        <span className="text-sm text-white/80">Today</span>
+                      </div>
+                      <div className="text-2xl font-bold text-white">{swipeStats.todaySwipes}</div>
+                      <div className="text-xs text-white/60 mt-1">Swipes today</div>
+                    </div>
+                    
+                    <div className="bg-gradient-to-br from-green-600/20 to-emerald-600/20 rounded-lg p-4 border border-green-500/20">
+                      <div className="flex items-center gap-2 mb-2">
+                        <TrendingUp className="h-4 w-4 text-green-400" />
+                        <span className="text-sm text-white/80">Streak</span>
+                      </div>
+                      <div className="text-2xl font-bold text-white">{swipeStats.streak}</div>
+                      <div className="text-xs text-white/60 mt-1">Days active</div>
+                    </div>
+                  </div>
+                  
+                  {/* Quick action button */}
+                  <div className="mt-6 pt-4 border-t border-white/10">
                     <Button
-                      variant="outline"
-                      className="mt-6 w-full text-black border-white/20 hover:bg-gray-300 bg-white"
+                      onClick={() => router.push("/swipe")}
+                      className="w-full bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-white shadow-lg hover:shadow-pink-500/25 transition-all hover:scale-105"
                     >
-                      <LogOut className="mr-2 h-4 w-4" /> Logout
+                      <Heart className="mr-2 h-4 w-4" />
+                      Continue Swiping
                     </Button>
                   </div>
                 </CardContent>
               </Card>
-            </div>
+            </motion.div>
           </div>
         </div>
-      </div>
+      </main>
+
+      <Footer />
     </div>
   )
 }
