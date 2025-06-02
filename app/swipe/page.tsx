@@ -12,6 +12,7 @@ import { getRecommendations } from "@/lib/recommendations"
 import { motion } from "framer-motion"
 import Header from "@/components/header"
 import Footer from "@/components/footer"
+import Link from "next/link"
 
 export default function SwipePage() {
   const router = useRouter()
@@ -19,6 +20,9 @@ export default function SwipePage() {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
   const [isMobile, setIsMobile] = useState(false)
+
+  const [swipeHistory, setSwipeHistory] = useState<Array<{ index: number, direction: 'left' | 'right' }>>([])
+
   
   interface UserData {
     provider: string;
@@ -90,10 +94,19 @@ export default function SwipePage() {
   }, [router])
 
   const handleSwipe = (direction: "left" | "right") => {
+    // Only keep the LAST left swipe in history (max 1 item)
+    if (direction === "left") {
+      setSwipeHistory([{ index: currentIndex, direction }]) // Replace entire history with just this one
+    }
+
+    // Handle RIGHT swipe (like/add to list)
     if (direction === "right") {
       console.log("Provider:", userData.provider);
       console.log("User data:", userData);
       console.log("Current anime:", currentAnime);
+
+      setSwipeHistory([])
+      
       if (userData.provider === "mal") {
         if (currentAnime) {
           fetch("/api/like", {
@@ -112,7 +125,6 @@ export default function SwipePage() {
           });
         }
       }
-
       else if (userData.provider === "anilist") {
         if (currentAnime) {
           const query = `
@@ -152,9 +164,25 @@ export default function SwipePage() {
       }
     }
 
-    // Update immediately - no setTimeout!
+    // Move to next card
     setCurrentIndex((prev) => prev + 1)
   }
+
+  const handleRewind = () => {
+    if (swipeHistory.length === 0) return
+
+    // Get the last (and only) LEFT swipe from history
+    const lastLeftSwipe = swipeHistory[0]
+    
+    // Clear history completely
+    setSwipeHistory([])
+    
+    // Go back to the previous rejected card
+    setCurrentIndex(lastLeftSwipe.index)
+  }
+
+  // Check if rewind is available (only need to check if there's history)
+  const canRewind = swipeHistory.length > 0
 
   useEffect(() => {
   if (currentIndex < recommendations.length) {
@@ -297,39 +325,39 @@ export default function SwipePage() {
       <div className="fixed inset-0 z-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-500/10 via-transparent to-transparent"></div>
       
       {/* Minimal top bar instead of full header */}
-      <motion.div 
-        className="relative z-20 flex justify-between items-center p-4 flex-shrink-0"
+      <motion.header 
+        className="container mx-auto px-4 py-4 md:py-6 flex justify-between items-center relative z-20"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
-        {/* Clickable logo to go home */}
-        <button 
-          onClick={() => router.push("/")}
-          className="text-xl font-bold bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent hover:from-pink-300 hover:to-purple-300 transition-all cursor-pointer"
-        >
+        {/* Logo matching header design */}
+        <Link href="/" className="text-xl md:text-2xl font-bold bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent">
           AnimeSwipe
-        </button>
+        </Link>
         
-        <div className="flex items-center gap-2">
+        {/* Right side buttons */}
+        <div className="flex gap-2 md:gap-4">
           <Button 
             variant="ghost" 
-            size="sm"
-            className="text-white/80 hover:text-white hover:bg-white/10"
+            size={isMobile ? "sm" : "default"}
+            className="text-white hover:text-white hover:bg-white/10 transition-all"
             onClick={() => router.push("/")}
           >
-            <Home className="h-4 w-4" />
+            <Home className="mr-2 h-4 w-4" />
+            Home
           </Button>
           <Button 
             variant="ghost" 
-            size="sm"
-            className="text-white/80 hover:text-white hover:bg-white/10"
+            size={isMobile ? "sm" : "default"}
+            className="text-white hover:text-white hover:bg-white/10 transition-all"
             onClick={() => router.push("/profile")}
           >
-            <User className="h-4 w-4" />
+            <User className="mr-2 h-4 w-4" />
+            Profile
           </Button>
         </div>
-      </motion.div>
+      </motion.header>
       
       {/* Main content takes remaining space */}
       <main className="relative z-20 container mx-auto max-w-md px-4 pb-8 flex flex-col flex-1">
@@ -376,13 +404,14 @@ export default function SwipePage() {
               )}
               
               {/* Current card - on top */}
-              <div className="relative z-10">
-                <SwipeableCard 
-                  key={currentAnime.id}
-                  anime={currentAnime} 
-                  onSwipe={handleSwipe} 
-                />
-              </div>
+            <div className="relative z-10">
+              <SwipeableCard 
+                key={currentAnime.id}
+                anime={currentAnime} 
+                onSwipe={handleSwipe}
+                onRewind={canRewind ? handleRewind : undefined}
+              />
+            </div>
             </motion.div>
           ) : (
             <div className="text-white text-xl">You've seen all recommendations for now.</div>

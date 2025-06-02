@@ -112,66 +112,106 @@ export default function AnimeCard({ anime, onSwipe, onRewind, onInfo, onShare, s
 
         {/* Expandable detailed info */}
         {showInfo && (
-          <div className="absolute inset-0 bg-black/95 backdrop-blur-sm p-6 flex flex-col justify-center animate-in slide-in-from-bottom duration-300 z-20">
-            <div className="space-y-6 max-h-full overflow-y-auto">
-              <div className="text-center">
-                <h3 className="text-2xl font-bold text-white mb-2">{anime.title}</h3>
-                <div className="flex justify-center items-center gap-2 mb-4">
-                  <Badge className="bg-pink-500">{anime.type}</Badge>
-                  {anime.score && (
-                    <div className="flex items-center text-yellow-400">
-                      <Star className="h-4 w-4 mr-1 fill-current" />
-                      <span className="font-semibold">{anime.score}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {anime.synopsis && (
-                <div>
-                  <h4 className="text-pink-300 font-semibold mb-2">Synopsis</h4>
-                  <p className="text-white/90 text-sm leading-relaxed">
-                    {anime.synopsis}
-                  </p>
-                </div>
-              )}
-
-              {anime.recommendationReason && (
-                <div className="p-4 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-lg border border-white/10">
-                  <h4 className="text-pink-300 font-semibold mb-2">Why we recommend this</h4>
-                  <p className="text-white/95 text-sm italic">
-                    {anime.recommendationReason}
-                  </p>
-                </div>
-              )}
-
-              {/* Action buttons in the popup */}
-              <div className="flex justify-center gap-3">
-                <button 
-                  onClick={handleDetailsClick}
-                  className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full text-white font-semibold hover:from-purple-600 hover:to-pink-600 transition-all hover:scale-105 shadow-lg"
-                >
-                  <ExternalLink className="h-4 w-4" />
-                  View Details
-                </button>
-                
-                <button 
-                  onClick={handleInfoClick}
-                  className="px-6 py-3 bg-white/20 backdrop-blur-sm rounded-full text-white hover:bg-white/30 transition-colors"
-                >
-                  Close
-                </button>
-              </div>
+  <div className="absolute inset-0 bg-black/95 backdrop-blur-sm p-6 flex flex-col animate-in slide-in-from-bottom duration-300 z-20">
+    <div className="flex-1 overflow-y-auto space-y-4">
+      {/* Header */}
+      <div className="text-center border-b border-white/20 pb-4">
+        <h3 className="text-xl font-bold text-white mb-2">{anime.title}</h3>
+        <div className="flex justify-center items-center gap-3">
+          <Badge className="bg-pink-500">{anime.type}</Badge>
+          {anime.score && (
+            <div className="flex items-center text-yellow-400">
+              <Star className="h-4 w-4 mr-1 fill-current" />
+              <span className="font-semibold">{anime.score}</span>
             </div>
+          )}
+          {anime.episodes && (
+            <div className="flex items-center text-white/70">
+              <Clock className="h-4 w-4 mr-1" />
+              <span className="text-sm">{anime.episodes} eps</span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Genres */}
+      {anime.genres && anime.genres.length > 0 && (
+        <div>
+          <h4 className="text-pink-300 font-medium mb-2 text-sm">Genres</h4>
+          <div className="flex flex-wrap gap-2">
+            {anime.genres.map((genre, index) => (
+              <Badge 
+                key={index} 
+                variant="outline" 
+                className="text-xs text-white border-white/30 bg-white/10"
+              >
+                {genre}
+              </Badge>
+            ))}
           </div>
-        )}
+        </div>
+      )}
+
+      {/* Synopsis - Truncated with show more */}
+      {anime.synopsis && (
+        <div>
+          <h4 className="text-pink-300 font-medium mb-2 text-sm">Synopsis</h4>
+          <p className="text-white/80 text-sm leading-relaxed line-clamp-7">
+            {anime.synopsis.length > 300 
+              ? `${anime.synopsis.substring(0, 300)}...` 
+              : anime.synopsis
+            }
+          </p>
+        </div>
+      )}
+
+      {/* Recommendation reason - More prominent */}
+      {anime.recommendationReason && (
+        <div className="p-3 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-lg border border-purple-400/30">
+          <div className="flex items-center mb-2">
+            <Heart className="h-4 w-4 text-pink-400 mr-2" />
+            <h4 className="text-pink-300 font-medium text-sm">Why you'll love it</h4>
+          </div>
+          <p className="text-white/95 text-sm">
+            {anime.recommendationReason}
+          </p>
+        </div>
+      )}
+    </div>
+
+    {/* Fixed bottom buttons */}
+    <div className="flex-shrink-0 pt-4 border-t border-white/20">
+      <div className="flex gap-3">
+        <button 
+          onClick={handleDetailsClick}
+          className="flex-1 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl text-white font-medium hover:from-purple-600 hover:to-pink-600 transition-all hover:scale-[1.02] shadow-lg"
+        >
+          <ExternalLink className="h-4 w-4" />
+          Full Details
+        </button>
+        
+        <button 
+          onClick={handleInfoClick}
+          className="px-6 py-3 bg-white/15 backdrop-blur-sm rounded-xl text-white hover:bg-white/25 transition-colors"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+)}
       </Card>
 
       {/* Action buttons - only show when not swiping */}
       <div className={`flex justify-center items-center gap-3 mt-6 ${showButtons ? 'visible' : 'invisible'}`}>
         <button 
           onClick={onRewind}
-          className="p-2.5 bg-yellow-500 hover:bg-yellow-600 rounded-full shadow-lg transition-all hover:scale-110 active:scale-95"
+          disabled={!onRewind}
+          className={`p-2.5 rounded-full shadow-lg transition-all ${
+            onRewind 
+              ? "bg-yellow-500 hover:bg-yellow-600 hover:scale-110 active:scale-95" 
+              : "bg-gray-400 cursor-not-allowed opacity-50"
+          }`}
         >
           <RotateCcw className="h-5 w-5 text-white" />
         </button>

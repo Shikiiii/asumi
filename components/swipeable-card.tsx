@@ -64,6 +64,8 @@ export default function SwipeableCard({ anime, onSwipe, onRewind, onInfo, onShar
     onDragEnd: handleDragEnd,
   }
 
+  
+
 
   return (
     <motion.div

@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, Star, Clock, Calendar, Heart, Play, Share2, Bookmark } from "lucide-react"
+import { ArrowLeft, Star, Clock, Calendar, Heart, Play, Share2, Bookmark, CheckCircle, ExternalLink } from "lucide-react"
 import { motion } from "framer-motion"
 import TrailerModal from "@/components/trailer-modal"
 import type { Anime } from "@/types/anime"
@@ -237,16 +237,28 @@ export default function AnimePage() {
     )
   }
 
-  // make function take current URL copy to clipboard
+  // Function to handle sharing the current page URL
   function handleShare() {
     if (typeof window !== "undefined" && window.location) {
       navigator.clipboard.writeText(window.location.href);
 
-      setCopiedText("Copied to clipboard");
+      setCopiedText("Copied!");
 
       setTimeout(() => {
         setCopiedText(null);
-      }, 1000);
+      }, 2000);
+    }
+  }
+
+  function handleAniListLink() {
+    if (!anime || !userData?.provider) return; // Add null checks
+    
+    if (userData.provider === "mal") {
+      // For MAL users, we need to use the AniList ID from the fetched data
+      window.open(`https://anilist.co/anime/${anime.id}`, '_blank');
+    } else if (userData.provider === "anilist") {
+      // For AniList users, use the current ID
+      window.open(`https://anilist.co/anime/${params.id}`, '_blank');
     }
   }
 
@@ -353,16 +365,38 @@ export default function AnimePage() {
                     </Button>
                   )}
                   
+                  {/* Juicy Share Button */}
                   <Button 
                     variant="outline" 
-                    className="border-2 border-white/30 text-white hover:bg-white/10 rounded-full px-4 py-3 transition-all hover:scale-105"
+                    className={`border-2 transition-all duration-300 rounded-full px-4 py-3 ${
+                      copiedText 
+                        ? "border-green-400 bg-green-400/20 text-green-400 scale-110" 
+                        : "border-white/30 text-white hover:bg-white/10 hover:scale-105"
+                    }`}
                     onClick={handleShare}
                   >
-                    {copiedText !== null ? (
-                      copiedText
+                    {copiedText ? (
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        className="flex items-center gap-2"
+                      >
+                        <CheckCircle className="h-5 w-5" />
+                        <span className="font-medium">{copiedText}</span>
+                      </motion.div>
                     ) : (
                       <Share2 className="h-5 w-5" />
                     )}
+                  </Button>
+
+                  {/* AniList Button */}
+                  <Button 
+                    variant="outline" 
+                    className="border-2 border-blue-400/30 text-blue-400 hover:bg-blue-400/10 hover:border-blue-400 rounded-full px-4 py-3 transition-all hover:scale-105"
+                    onClick={handleAniListLink}
+                  >
+                    <ExternalLink className="mr-2 h-4 w-4" />
+                    <span className="font-medium">AniList</span>
                   </Button>
                 </div>
               </motion.div>

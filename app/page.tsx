@@ -7,6 +7,8 @@ import { motion } from "framer-motion"
 import { useEffect, useState } from "react"
 import Header from "@/components/header"
 import Footer from "@/components/footer"
+import { useAuth } from "@/app/context/auth-context"
+import { useRouter } from "next/navigation"
 
 // Sample anime covers for the grid
 const animeCovers = [
@@ -111,6 +113,11 @@ const AnimeCard = ({ anime, delay = 0 }: { anime: (typeof animeCovers)[0]; delay
 
 export default function Home() {
   const [isMobile, setIsMobile] = useState(false)
+  const { user, isAuthenticated, isLoading } = useAuth()
+  const router = useRouter()
+
+  // Add debugging
+  console.log('Auth state:', { user, isAuthenticated, isLoading })
 
   useEffect(() => {
     const checkMobile = () => {
@@ -122,6 +129,17 @@ export default function Home() {
     
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
+
+  const handleGetStarted = () => {
+    console.log('Button clicked, auth state:', { user, isAuthenticated, isLoading })
+    if (isAuthenticated) {
+      console.log('Redirecting to /swipe')
+      router.push('/swipe')
+    } else {
+      console.log('Redirecting to /login')
+      router.push('/login')
+    }
+  }
 
   // Create duplicated arrays for seamless scrolling
   const col1Cards = animeCovers.filter((_, index) => index % 2 === 0)
@@ -237,21 +255,21 @@ export default function Home() {
 
             {/* CTA Buttons - Mobile optimized */}
             <div className="flex flex-col sm:flex-row justify-center lg:justify-start gap-3 md:gap-4 pt-4">
-              <Link href="/login" className="w-full sm:w-auto">
-                <Button 
-                  size={isMobile ? "default" : "lg"}
-                  className="w-full sm:w-auto bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-white shadow-2xl hover:shadow-pink-500/25 transition-all hover:scale-105 px-6 md:px-8 py-3 md:py-4 text-base md:text-lg font-semibold"
-                >
-                  Get Started <ArrowRight className="ml-2 h-4 w-4 md:h-5 md:w-5" />
-                </Button>
-              </Link>
               <Button 
+                onClick={handleGetStarted}
+                disabled={isLoading}
                 size={isMobile ? "default" : "lg"}
-                variant="outline" 
-                className="w-full sm:w-auto border-2 border-white/20 text-white hover:bg-white/10 hover:border-white/40 transition-all px-6 md:px-8 py-3 md:py-4 text-base md:text-lg"
+                className="w-full sm:w-auto bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-white shadow-2xl hover:shadow-pink-500/25 transition-all hover:scale-105 px-6 md:px-8 py-3 md:py-4 text-base md:text-lg font-semibold disabled:opacity-50"
               >
-                <Play className="mr-2 h-4 w-4 md:h-5 md:w-5" /> Watch Demo
+                {isLoading ? (
+                  "Loading..."
+                ) : isAuthenticated ? (
+                  <>Start Swiping <ArrowRight className="ml-2 h-4 w-4 md:h-5 md:w-5" /></>
+                ) : (
+                  <>Get Started <ArrowRight className="ml-2 h-4 w-4 md:h-5 md:w-5" /></>
+                )}
               </Button>
+
             </div>
 
             <p className="text-lg md:text-xl text-gray-300 leading-relaxed max-w-lg mx-auto lg:mx-0">

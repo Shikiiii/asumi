@@ -177,13 +177,7 @@ export default function ProfilePage() {
             Back to Swiping
           </Button>
           
-          <Button
-            variant="outline"
-            className="border-white/20 text-white hover:bg-white/10 hover:border-white/40"
-          >
-            <Settings className="mr-2 h-4 w-4" />
-            Settings
-          </Button>
+
         </motion.div>
 
         <div className="max-w-5xl mx-auto">
@@ -243,14 +237,7 @@ export default function ProfilePage() {
 
                     {/* Action buttons */}
                     <div className="flex gap-2 mt-6 w-full">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="flex-1 border-white/20 text-white hover:bg-white/10 hover:border-white/40"
-                      >
-                        <Edit className="mr-2 h-3 w-3" />
-                        Edit
-                      </Button>
+
                       <Button
                         variant="destructive"
                         size="sm"
