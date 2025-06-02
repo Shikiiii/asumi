@@ -320,7 +320,7 @@ export default function Home() {
             </div>
 
             {/* Stats - Mobile optimized */}
-            <motion.div 
+{/*             <motion.div 
               className="flex justify-center lg:justify-start gap-6 md:gap-8 pt-6 md:pt-8 text-center"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -338,7 +338,7 @@ export default function Home() {
                 <div className="text-2xl md:text-3xl font-bold text-white">1M+</div>
                 <div className="text-xs md:text-sm text-gray-400">Matches Made</div>
               </div>
-            </motion.div>
+            </motion.div> */}
           </motion.div>
         </div>
       </main>

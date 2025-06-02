@@ -57,7 +57,7 @@ export default function Header({ isMobile = false }: HeaderProps) {
         transition={{ duration: 0.6 }}
       >
         <Link href="/" className="text-xl md:text-2xl font-bold bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent">
-          AnimeSwipe
+          Asumi
         </Link>
         <div className="flex gap-2 md:gap-4">
           <div className="w-16 h-9 bg-white/10 rounded animate-pulse"></div>
@@ -75,7 +75,7 @@ export default function Header({ isMobile = false }: HeaderProps) {
       transition={{ duration: 0.6 }}
     >
       <Link href="/" className="text-xl md:text-2xl font-bold bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent">
-        AnimeSwipe
+        Asumi
       </Link>
       
       <div className="flex gap-2 md:gap-4">
