@@ -57,9 +57,49 @@ export default function ProfilePage() {
               router.push("/login");
             });
         } else if (updatedUserData.provider === "anilist") {
-          // fetch al info
+          
+            // Fetch user info from AniList
+            const query = `
+              query {
+                Viewer {
+                name
+                avatar {
+                  large
+                }
+                }
+              }
+            `;
+            fetch("https://graphql.anilist.co", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${updatedUserData.access_token}`,
+              },
+              body: JSON.stringify({ query }),
+            })
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error("Failed to fetch user info from AniList");
+              }
+              return response.json();
+            })
+            .then((data) => {
+              const viewer = data.data?.Viewer;
+              if (viewer) {
+                const updatedUserInfo = {
+                  username: viewer.name,
+                  avatar: viewer.avatar?.large || "",
+                };
+                setUserInfo(updatedUserInfo);
+              } else {
+                throw new Error("No user info returned from AniList");
+              }
+            })
+            .catch((error) => {
+              console.error("Error fetching user info from AniList:", error);
+              router.push("/login");
+            });
         }
-
       } catch (error) {
         console.error("Error parsing animeswipe_session:", error);
         router.push("/login");
@@ -70,6 +110,12 @@ export default function ProfilePage() {
         return;
     }
   }, [router])
+
+  const handleLogout = () => {
+    // Clear session storage and redirect to login
+    localStorage.removeItem("animeswipe_session")
+    window.location.href = "/login";
+  }
 
   return (
     <div className="min-h-screen p-4 bg-black">
@@ -104,8 +150,9 @@ export default function ProfilePage() {
                     <Button
                       variant="outline"
                       className="mt-6 w-full text-black border-white/20 hover:bg-gray-300 bg-white"
+                      onClick={handleLogout} 
                     >
-                      <LogOut className="mr-2 h-4 w-4" /> Logout
+                      <LogOut className="mr-2 h-4 w-4"/> Logout
                     </Button>
                   </div>
                 </CardContent>
