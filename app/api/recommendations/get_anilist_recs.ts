@@ -122,41 +122,44 @@ async function fetchUserCompletedAnime(token: string, userName: string, sort: 'U
     }
 }
 
-async function fetchRecommendationsForAnime(token: string, animeId: number): Promise<Recommendation[]> {
+async function fetchBatchRecommendations(token: string, animeIds: number[]): Promise<Recommendation[]> {
     const query = `
-    query ($id: Int) {
-      Media(id: $id, type: ANIME) {
-        recommendations(sort: RATING_DESC, perPage: 10) {
-          nodes {
-            mediaRecommendation {
-              id
-              title {
-                romaji
-              }
-              format
-              episodes
-              status
-              meanScore
-              genres
-              description
-              coverImage {
-                medium
-                large
-                extraLarge
-              }
-              bannerImage
-              trailer {
-                site
+    query ($ids: [Int]) {
+      Page(perPage: 50) {
+        media(id_in: $ids, type: ANIME) {
+          id
+          recommendations(sort: RATING_DESC, perPage: 10) {
+            nodes {
+              mediaRecommendation {
                 id
+                title {
+                  romaji
+                }
+                format
+                episodes
+                status
+                meanScore
+                genres
+                description
+                coverImage {
+                  medium
+                  large
+                  extraLarge
+                }
+                bannerImage
+                trailer {
+                  site
+                  id
+                }
               }
             }
           }
         }
       }
     }
-  `;
+    `;
 
-    const variables = { id: animeId };
+    const variables = { ids: animeIds };
 
     try {
         const response = await axios.post(
@@ -164,52 +167,41 @@ async function fetchRecommendationsForAnime(token: string, animeId: number): Pro
             { query, variables },
             {
                 headers: {
-                    'Authorization': `Bearer ${token}`,
+                    Authorization: `Bearer ${token}`,
                     'Content-Type': 'application/json',
                 },
             }
         );
 
-        const nodes = response.data.data.Media.recommendations.nodes;
-        const recommendations: Recommendation[] = nodes.map((node: any) => {
-            const media = node.mediaRecommendation;
-            return {
-                id: media.id,
-                title: media.title.romaji,
-                type: media.type,
-                episodes: media.episodes,
-                status: media.status,
-                score: media.meanScore,
-                genres: media.genres,
-                synopsis: media.description,
-                coverImage: media.coverImage.extraLarge || media.coverImage.large,
-                bannerImage: media.bannerImage,
-                trailerUrl: media.trailer ? `https://www.youtube.com/watch?v=${media.trailer.id}` : '',
-                count: 1,
-            };
-        });
+        const mediaList = response.data.data.Page.media;
+        const allRecs: Recommendation[] = [];
 
-        return recommendations;
-    } catch (error: unknown) {
-        if (typeof error === 'object' && error !== null && 'response' in error) {
-            // Server responded with a status outside the 2xx range
-            const err = error as any;
-            console.error("AniList Error Response:");
-            console.error("Status:", err.response.status);
-            console.error("Status Text:", err.response.statusText);
-            console.error("Headers:", err.response.headers);
-            console.error("Data:", JSON.stringify(err.response.data, null, 2)); // <-- This shows what AniList actually says
-        } else if (typeof error === 'object' && error !== null && 'request' in error) {
-            // Request was made but no response
-            const err = error as any;
-            console.error("No response received:", err.request);
-        } else if (error instanceof Error) {
-            // Something else triggered the error
-            console.error("Error setting up request:", error.message);
-        } else {
-            console.error("Unknown error occurred:", error);
+        for (const media of mediaList) {
+            const nodes = media.recommendations?.nodes ?? [];
+            for (const node of nodes) {
+                const rec = node.mediaRecommendation;
+                if (rec) {
+                    allRecs.push({
+                        id: rec.id,
+                        title: rec.title.romaji,
+                        type: rec.type,
+                        episodes: rec.episodes,
+                        status: rec.status,
+                        score: rec.meanScore,
+                        genres: rec.genres,
+                        synopsis: rec.description,
+                        coverImage: rec.coverImage.extraLarge || rec.coverImage.large,
+                        bannerImage: rec.bannerImage,
+                        trailerUrl: rec.trailer ? `https://www.youtube.com/watch?v=${rec.trailer.id}` : '',
+                        count: 1,
+                    });
+                }
+            }
         }
 
+        return allRecs;
+    } catch (error) {
+        console.error("Failed to fetch batch recommendations", error);
         return [];
     }
 }
@@ -245,11 +237,11 @@ export const getALRecommendations = async (accessToken: string) => {
     const topRatedAnimeIds = await fetchUserCompletedAnime(accessToken, userName, 'SCORE_DESC');
     console.log('Top Rated Anime IDs:', topRatedAnimeIds);
 
-    const recentRecs = await Promise.all(recentAnimeIds.map((id) => fetchRecommendationsForAnime(accessToken, id)));
-    const topRatedRecs = await Promise.all(topRatedAnimeIds.map((id) => fetchRecommendationsForAnime(accessToken, id)));
+    const recentRecs = await fetchBatchRecommendations(accessToken, recentAnimeIds);
+    const topRatedRecs = await fetchBatchRecommendations(accessToken, topRatedAnimeIds);
 
     return {
-        recent: aggregateRecommendations(recentRecs),
-        topRated: aggregateRecommendations(topRatedRecs),
+        recent: aggregateRecommendations([recentRecs]),
+        topRated: aggregateRecommendations([topRatedRecs]),
     };
 };
