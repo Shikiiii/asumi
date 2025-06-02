@@ -168,7 +168,6 @@ export default function AnimeCard({ anime, onSwipe, onRewind, onInfo, onShare, s
       </Card>
 
       {/* Action buttons - only show when not swiping */}
-      {showButtons && (
       <div className={`flex justify-center items-center gap-3 mt-6 ${showButtons ? 'visible' : 'invisible'}`}>
         <button 
           onClick={onRewind}
@@ -207,7 +206,6 @@ export default function AnimeCard({ anime, onSwipe, onRewind, onInfo, onShare, s
           <Share2 className="h-5 w-5 text-white" />
         </button>
       </div>
-      )}
     </div>
   )
 }
