@@ -10,8 +10,12 @@ async function filterOutAlreadyWatched(
 ): Promise<number[]> {
   const query = `
     query ($userName: String, $ids: [Int]) {
-      MediaList(userName: $userName, type: ANIME, mediaId_in: $ids) {
-        mediaId
+      MediaListCollection(userName: $userName, type: ANIME) {
+        lists {
+          entries {
+            mediaId
+          }
+        }
       }
     }`;
 
@@ -27,8 +31,10 @@ async function filterOutAlreadyWatched(
       }
     );
 
-    const alreadyOnList = response.data.data.MediaList ?? [];
-    const seenIds = new Set<number>(alreadyOnList.map((entry: any) => entry.mediaId));
+    const lists = response.data.data.MediaListCollection?.lists ?? [];
+    const allEntries = lists.flatMap((list: any) => list.entries || []);
+    const seenIds = new Set<number>(allEntries.map((entry: any) => entry.mediaId));
+
     return animeIds.filter(id => !seenIds.has(id));
   } catch (error) {
     console.error("Failed to filter watched anime:", error);
