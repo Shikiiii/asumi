@@ -19,7 +19,7 @@ Asumi transforms anime discovery into an engaging, Tinder-like experience. Conne
 
 ## 🚀 Demo
 
-Try it live: [aniswipe.vercel.app](https://your-demo-link.com)
+Try it live: [asumi](https://asumi.vercel.app/)
 
 ## 🛠️ Tech Stack
 
