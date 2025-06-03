@@ -4,8 +4,6 @@
 
 Asumi transforms anime discovery into an engaging, Tinder-like experience. Connect your MyAnimeList or AniList account, swipe through personalized recommendations, and build your watchlist effortlessly.
 
-![Asumi](https://via.placeholder.com/800x400/000000/FFFFFF?text=Asumi+Demo+GIF)
-
 <div align="center">
   <img src="/screenshots/1.png" alt="Swipe Page" width="1080"/>
 </div>
@@ -35,8 +33,8 @@ Try it live: [aniswipe.vercel.app](https://your-demo-link.com)
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/aniswipe.git
-   cd aniswipe
+   git clone https://github.com/Shikiiii/asumi.git
+   cd asumi
    ```
 
 2. **Install dependencies**
@@ -118,14 +116,14 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-If you have any questions or run into issues, please [open an issue](https://github.com/yourusername/aniswipe/issues) on GitHub.
+If you have any questions or run into issues, please [open an issue](https://github.com/Shikiiii/asumi/issues) on GitHub.
 
 ---
 
 <div align="center">
   <p>Made with ❤️ for the anime community</p>
   <p>
-    <a href="https://github.com/yourusername/aniswipe/issues">🐛 Report Bug</a> •
-    <a href="https://github.com/yourusername/aniswipe/issues">✨ Request Feature</a>
+    <a href="https://github.com/Shikiiii/asumi/issues">🐛 Report Bug</a> •
+    <a href="https://github.com/Shikiiii/asumi/issues">✨ Request Feature</a>
   </p>
 </div>

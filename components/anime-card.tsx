@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Star, Clock, Heart, X, RotateCcw, Info, Share2, ExternalLink } from "lucide-react"
+import { Star, Clock, Heart, X, RotateCcw, Info, Share2, ExternalLink, Check } from "lucide-react"
 import type { Anime } from "@/types/anime"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
@@ -10,13 +10,14 @@ interface AnimeCardProps {
   onSwipe?: (direction: 'left' | 'right') => void
   onRewind?: () => void
   onInfo?: () => void
-  onShare?: () => void
+  onShare?: (id: string) => void
   showButtons?: boolean
 }
 
 export default function AnimeCard({ anime, onSwipe, onRewind, onInfo, onShare, showButtons = true }: AnimeCardProps) {
   const [showInfo, setShowInfo] = useState(false)
   const router = useRouter()
+  const [copiedText, setCopiedText] = useState<string | null>(null);
 
   const handleInfoClick = () => {
     setShowInfo(!showInfo)
@@ -25,6 +26,25 @@ export default function AnimeCard({ anime, onSwipe, onRewind, onInfo, onShare, s
 
     const handleDetailsClick = () => {
     router.push(`/anime/${anime.id}`)
+  }
+
+  const __onShare = (id: string) => {
+    // copy to clipboard link /anime/id
+    if (typeof window !== "undefined" && id) {
+      const url = `${window.location.origin}/anime/${id}`;
+      navigator.clipboard.writeText(url).then(
+      () => {
+        setCopiedText("Copied!");
+
+        setTimeout(() => {
+          setCopiedText(null);
+        }, 2000);
+      },
+      (err) => {
+        console.error("Failed to copy link:", err);
+      }
+      );
+    }
   }
 
   return (
@@ -240,10 +260,14 @@ export default function AnimeCard({ anime, onSwipe, onRewind, onInfo, onShare, s
         </button>
 
         <button 
-          onClick={onShare}
+          onClick={() => __onShare?.(anime.id)}
           className="p-2.5 bg-purple-500 hover:bg-purple-600 rounded-full shadow-lg transition-all hover:scale-110 active:scale-95"
         >
-          <Share2 className="h-5 w-5 text-white" />
+          {copiedText !== null ? (
+            <Check className="h-5 w-5 text-white" />
+          ) : (
+            <Share2 className="h-5 w-5 text-white" />
+          )}
         </button>
       </div>
     </div>

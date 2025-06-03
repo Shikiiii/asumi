@@ -8,7 +8,7 @@ interface SwipeableCardProps {
   onSwipe?: (direction: 'left' | 'right') => void
   onRewind?: () => void
   onInfo?: () => void
-  onShare?: () => void
+  onShare?: (id: string) => void
   isBackground?: boolean
 }
 
@@ -63,9 +63,6 @@ export default function SwipeableCard({ anime, onSwipe, onRewind, onInfo, onShar
     onDragStart: handleDragStart,
     onDragEnd: handleDragEnd,
   }
-
-  
-
 
   return (
     <motion.div
