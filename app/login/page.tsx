@@ -127,11 +127,7 @@ export default function LoginPage() {
               >
                 <p className="text-xs text-white/50 mb-3 leading-relaxed">
                   By connecting, you agree to our{" "}
-                  <span className="text-purple-400 hover:text-purple-300 cursor-pointer underline">
-                    Terms of Service
-                  </span>{" "}
-                  and{" "}
-                  <span className="text-purple-400 hover:text-purple-300 cursor-pointer underline">
+                  <span className="text-purple-400 hover:text-purple-300 cursor-pointer underline" onClick={() => (window.location.href = '/privacy')}>
                     Privacy Policy
                   </span>
                 </p>
