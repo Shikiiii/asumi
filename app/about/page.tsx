@@ -140,16 +140,16 @@ export default function AboutPage() {
             <h2 className="text-2xl font-bold text-white mb-4">About This Project</h2>
             <div className="space-y-4 text-white/80">
               <p>
-                AnimeSwipe was born from the idea that discovering new anime should be as engaging as watching it. 
+                Asumi was born from the idea that discovering new anime should be as engaging as watching it. 
                 Instead of scrolling through endless lists, why not make it interactive and fun?
               </p>
               <p>
-                Built with modern web technologies, AnimeSwipe provides a smooth, responsive experience that works 
+                Built with modern web technologies, Asumi provides a smooth, responsive experience that works 
                 seamlessly across all your devices. The app integrates directly with popular anime platforms to 
                 keep your watchlist synchronized.
               </p>
               <p>
-                Whether you're a seasoned otaku or just starting your anime journey, AnimeSwipe helps you find 
+                Whether you're a seasoned otaku or just starting your anime journey, Asumi helps you find 
                 shows that match your taste and discover hidden gems you might have missed.
               </p>
             </div>
