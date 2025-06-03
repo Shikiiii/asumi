@@ -59,7 +59,7 @@ export default function AboutPage() {
         >
           <h1 className="text-4xl md:text-6xl font-bold mb-6">
             <span className="bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent">
-              AnimeSwipe
+              Asumi
             </span>
           </h1>
           <p className="text-xl md:text-2xl text-white/80 mb-8 max-w-2xl mx-auto">
@@ -166,7 +166,7 @@ export default function AboutPage() {
           <h2 className="text-3xl font-bold text-white mb-6">Ready to Start Swiping?</h2>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button 
-              onClick={() => router.push("/auth")}
+              onClick={() => router.push("/login")}
               className="bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-white font-semibold px-8 py-3 rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-105"
             >
               Get Started
