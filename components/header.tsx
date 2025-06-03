@@ -168,7 +168,12 @@ const AsumiLogo = ({ className }: { className?: string }) => (
     </g>
 
     {/* Side flourishes */}
-    <g className="transition-all duration-500 group-hover:scale-110 group-hover:opacity-100" opacity="0.4" transformOrigin="140 60">
+    <g
+      className="transition-all duration-500 group-hover:scale-110 group-hover:opacity-100"
+      opacity="0.4"
+      transform="translate(140,60)"
+      style={{ transformOrigin: "140px 60px" }}
+    >
       <path d="M60 55 Q65 50 70 55 Q65 60 60 55" fill="url(#accentGradient)" />
       <path d="M210 55 Q215 50 220 55 Q215 60 210 55" fill="url(#accentGradient)" />
     </g>

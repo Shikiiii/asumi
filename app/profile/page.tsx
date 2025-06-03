@@ -109,14 +109,69 @@ export default function ProfilePage() {
 
   // ==== STATS EXPORTING ======
   const statsRef = useRef<HTMLDivElement>(null);
-  const handleDownload = async () => {
-    if (statsRef.current === null) return;
+  const [isDownloading, setIsDownloading] = useState(false);
 
-    const dataUrl = await toPng(statsRef.current);
-    const link = document.createElement("a");
-    link.download = "my-anime-stats.png";
-    link.href = dataUrl;
-    link.click();
+  const handleDownload = async () => {
+    if (!statsRef.current) return;
+
+    try {
+      setIsDownloading(true);
+      
+      // Small delay to let the UI update
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      // Firefox-specific font handling
+      const isFirefox = navigator.userAgent.toLowerCase().includes('firefox');
+      
+      if (isFirefox) {
+        // For Firefox, we need to explicitly embed fonts and wait longer
+        await document.fonts.ready;
+        
+        // Additional wait for Firefox
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        const dataUrl = await toPng(statsRef.current, {
+          quality: 1,
+          pixelRatio: 2,
+          backgroundColor: 'black',
+          skipFonts: false, // Let it try to embed fonts
+          fontEmbedCSS: `
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+            * { font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important; }
+          `,
+          filter: (node) => {
+            // Skip any problematic nodes in Firefox
+            if (node.tagName === 'SCRIPT' || node.tagName === 'STYLE') {
+              return false;
+            }
+            return true;
+          }
+        });
+        
+        const link = document.createElement("a");
+        link.download = "my-anime-stats.png";
+        link.href = dataUrl;
+        link.click();
+      } else {
+        // For other browsers, use the original approach
+        await document.fonts.ready;
+        const dataUrl = await toPng(statsRef.current, {
+          quality: 1,
+          pixelRatio: 2,
+          backgroundColor: 'black',
+        });
+        
+        const link = document.createElement("a");
+        link.download = "my-anime-stats.png";
+        link.href = dataUrl;
+        link.click();
+      }
+    } catch (error) {
+      console.error('Error generating image:', error);
+      alert('Failed to download image. Please try again.');
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
 
@@ -324,7 +379,7 @@ export default function ProfilePage() {
           <div className="grid lg:grid-cols-[350px_1fr] gap-8">
             {/* Profile Card */}
             <motion.div
-              className="space-y-6"
+              className="pt-6"
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
@@ -332,7 +387,7 @@ export default function ProfilePage() {
               <Card className="bg-white/5 backdrop-blur-xl border-white/10 shadow-2xl">
                 <CardContent className="pt-8 pb-6">
                   <div className="flex flex-col items-center text-center">
-                    {/* Avatar with edit button */}
+                    {/* Avatar */}
                     <div className="relative group">
                       <Avatar className="w-28 h-28 border-4 border-gradient-to-r from-pink-500 to-purple-500">
                         <AvatarImage src={userInfo.avatar || "/placeholder.svg?height=112&width=112"} alt={userInfo.username} />
@@ -411,8 +466,175 @@ export default function ProfilePage() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
-              ref={statsRef}
             >
+            <div ref={statsRef}>
+              {/* Download Section */}
+              {isDownloading ? (
+                // Merged card design for download
+                
+                <Card className="bg-white/5 backdrop-blur-xl border-white/10 shadow-2xl">
+                    <div className="flex justify-center pt-4 -mb-4">
+                      <Avatar className="w-28 h-28 border-4 border-gradient-to-r from-pink-500 to-purple-500">
+                        <AvatarImage src={userInfo.avatar || "/placeholder.svg?height=112&width=112"} alt={userInfo.username} />
+                        <AvatarFallback className="text-2xl font-bold bg-gradient-to-r from-pink-500 to-purple-500">
+                          {userInfo.username.substring(0, 2).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                    </div>
+                  <CardHeader className="text-center pb-4">
+                    <CardTitle className="text-2xl font-bold text-white bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent">
+                      {userInfo.username}'s Anime Stats
+                    </CardTitle>
+                    <div className="text-sm text-white/60">Generated by Asumi</div>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    {/* Anime Stats */}
+                    <div>
+                      <h3 className="flex items-center gap-2 text-lg font-semibold text-white mb-4">
+                        <TrendingUp className="h-5 w-5 text-purple-400" />
+                        Anime Statistics
+                      </h3>
+                      <div className="grid grid-cols-3 gap-3">
+                        <div className="bg-gradient-to-br from-green-600/20 to-green-700/20 rounded-lg p-4 border border-green-500/20">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Star className="h-4 w-4 text-green-400" />
+                            <span className="text-sm text-white/80">Completed</span>
+                          </div>
+                          <div className="text-2xl font-bold text-white">{userInfo.completed}</div>
+                        </div>
+                        <div className="bg-gradient-to-br from-cyan-600/20 to-teal-700/20 rounded-lg p-4 border border-cyan-500/20">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Calendar className="h-4 w-4 text-cyan-400" />
+                            <span className="text-sm text-white/80">Watching</span>
+                          </div>
+                          <div className="text-2xl font-bold text-white">{userInfo.watching}</div>
+                        </div>
+                        
+                        <div className="bg-gradient-to-br from-blue-600/20 to-blue-700/20 rounded-lg p-4 border border-blue-500/20">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Calendar className="h-4 w-4 text-blue-400" />
+                            <span className="text-sm text-white/80">Plan to Watch</span>
+                          </div>
+                          <div className="text-2xl font-bold text-white">{userInfo.ptw}</div>
+                        </div>
+                        
+                        <div className="bg-gradient-to-br from-yellow-600/20 to-amber-700/20 rounded-lg p-4 border border-yellow-500/20">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Calendar className="h-4 w-4 text-yellow-400" />
+                            <span className="text-sm text-white/80">On Hold</span>
+                          </div>
+                          <div className="text-2xl font-bold text-white">{userInfo.onhold}</div>
+                        </div>
+                        
+                        <div className="bg-gradient-to-br from-red-600/20 to-red-700/20 rounded-lg p-4 border border-red-500/20">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Calendar className="h-4 w-4 text-red-400" />
+                            <span className="text-sm text-white/80">Dropped</span>
+                          </div>
+                          <div className="text-2xl font-bold text-white">{userInfo.dropped}</div>
+                        </div>
+                        
+                        <div className="bg-gradient-to-br from-pink-600/20 to-purple-600/20 rounded-lg p-4 border border-pink-500/20">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Star className="h-4 w-4 text-pink-400" />
+                            <span className="text-sm text-white/80">Episodes</span>
+                          </div>
+                          <div className="text-2xl font-bold text-white">{userInfo.episodes}</div>
+                        </div>
+                        
+                        <div className="bg-gradient-to-br from-yellow-600/20 to-orange-600/20 rounded-lg p-4 border border-yellow-500/20 md:col-span-2">
+                          <div className="flex items-center gap-2 mb-2">
+                            <TrendingUp className="h-4 w-4 text-yellow-400" />
+                            <span className="text-sm text-white/80">Days Watched</span>
+                          </div>
+                          <div className="text-2xl font-bold text-white">{userInfo.days_watched}</div>
+                          <div className="text-xs text-white/60 mt-1">That's {Math.round(userInfo.days_watched * 24)} hours!</div>
+                        </div>
+                        
+                        <div className="bg-gradient-to-br from-purple-600/20 to-indigo-600/20 rounded-lg p-4 border border-purple-500/20">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Star className="h-4 w-4 text-purple-400" />
+                            <span className="text-sm text-white/80">Avg Rating</span>
+                          </div>
+                          <div className="text-2xl font-bold text-white">
+                          {userInfo.avg_score
+                            ? Math.round(
+                                (userInfo.avg_score > 10
+                                  ? userInfo.avg_score / 10
+                                  : userInfo.avg_score) * 10
+                              ) / 10
+                            : 0}/10</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Swiping Stats */}
+                    <div>
+                      <h3 className="flex items-center gap-2 text-lg font-semibold text-white mb-4">
+                        <Heart className="h-5 w-5 text-pink-400" />
+                        Swiping Statistics
+                      </h3>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                      <div className="bg-gradient-to-br from-pink-600/20 to-red-600/20 rounded-lg p-4 border border-pink-500/20">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Heart className="h-4 w-4 text-pink-400" />
+                          <span className="text-sm text-white/80">Matches</span>
+                        </div>
+                        <div className="text-2xl font-bold text-white">{userAsumiStats?.matches}</div>
+                        <div className="text-xs text-white/60 mt-1">You liked these!</div>
+                      </div>
+                      
+                      <div className="bg-gradient-to-br from-gray-600/20 to-gray-700/20 rounded-lg p-4 border border-gray-500/20">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Calendar className="h-4 w-4 text-gray-400" />
+                          <span className="text-sm text-white/80">Passed</span>
+                        </div>
+                        <div className="text-2xl font-bold text-white">{userAsumiStats?.passed}</div>
+                        <div className="text-xs text-white/60 mt-1">Not your type</div>
+                      </div>
+                      
+                      <div className="bg-gradient-to-br from-purple-600/20 to-indigo-600/20 rounded-lg p-4 border border-purple-500/20">
+                        <div className="flex items-center gap-2 mb-2">
+                          <TrendingUp className="h-4 w-4 text-purple-400" />
+                          <span className="text-sm text-white/80">Match Rate</span>
+                        </div>
+                        <div className="text-2xl font-bold text-white">{matchRate}%</div>
+                        <div className="text-xs text-white/60 mt-1">Pretty selective!</div>
+                      </div>
+                      
+                      <div className="bg-gradient-to-br from-blue-600/20 to-cyan-600/20 rounded-lg p-4 border border-blue-500/20">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Star className="h-4 w-4 text-blue-400" />
+                          <span className="text-sm text-white/80">Total Swipes</span>
+                        </div>
+                        <div className="text-2xl font-bold text-white">{userAsumiStats?.total_swipes}</div>
+                        <div className="text-xs text-white/60 mt-1">Keep swiping!</div>
+                      </div>
+                      
+                      <div className="bg-gradient-to-br from-orange-600/20 to-yellow-600/20 rounded-lg p-4 border border-orange-500/20">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Calendar className="h-4 w-4 text-orange-400" />
+                          <span className="text-sm text-white/80">Today</span>
+                        </div>
+                        <div className="text-2xl font-bold text-white">{userAsumiStats?.today}</div>
+                        <div className="text-xs text-white/60 mt-1">Swipes today</div>
+                      </div>
+                      
+                      <div className="bg-gradient-to-br from-green-600/20 to-emerald-600/20 rounded-lg p-4 border border-green-500/20">
+                        <div className="flex items-center gap-2 mb-2">
+                          <TrendingUp className="h-4 w-4 text-green-400" />
+                          <span className="text-sm text-white/80">Streak</span>
+                        </div>
+                        <div className="text-2xl font-bold text-white">{userAsumiStats?.streak}</div>
+                        <div className="text-xs text-white/60 mt-1">Days active</div>
+                      </div>
+                    </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+              ) : null}
+              </div>
               {/* Detailed Stats */}
               <Card className="bg-white/5 backdrop-blur-xl border-white/10 shadow-2xl">
                 <CardHeader>
@@ -574,17 +796,39 @@ export default function ProfilePage() {
                         <Heart className="mr-2 h-4 w-4" />
                         Continue Swiping
                       </Button>
-                        <Button
-                        onClick={() => handleDownload()}
-                        className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white shadow-lg hover:shadow-cyan-500/25 transition-all hover:scale-105"
-                        >
-                        <Download className="mr-2 h-4 w-4" />
-                        Download
-                        </Button>
                     </div>
                   </div>
                 </CardContent>
               </Card>
+              <Card className="bg-white/5 backdrop-blur-xl border-white/10 shadow-2xl">
+              
+                  <CardHeader className="text-center pb-4">
+                    <CardTitle className="text-2xl font-bold text-white bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent">
+                      {userInfo.username}'s Anime Stats
+                    </CardTitle>
+                    <div className="text-sm text-white/60">Generated by Asumi</div>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div className="flex justify-center">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleDownload}
+                        disabled={isDownloading}
+                        className="bg-white/10 hover:bg-white/20 text-white flex items-center gap-2"
+                      >
+                        {isDownloading ? (
+                          <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                        ) : (
+                          <>
+                            <Download className="h-4 w-4" />
+                            Download Stats
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
             </motion.div>
           </div>
         </div>
