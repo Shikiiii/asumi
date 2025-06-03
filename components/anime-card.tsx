@@ -2,7 +2,7 @@ import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Star, Clock, Heart, X, RotateCcw, Info, Share2, ExternalLink, Check } from "lucide-react"
 import type { Anime } from "@/types/anime"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 
 interface AnimeCardProps {
@@ -120,7 +120,7 @@ export default function AnimeCard({ anime, onSwipe, onRewind, onInfo, onShare, s
                   <div className="p-3 bg-gradient-to-r from-purple-500/25 to-pink-500/25 rounded-lg border border-white/20 backdrop-blur-sm">
                     <p className="text-white/95 text-sm">
                       <span className="font-medium text-pink-300">Why you'll love it: </span>
-                      <span className="italic">{anime.recommendationReason}</span>
+                      <span className="italic">{"You love " + (anime.genres?.[0] ?? "Action") + " animes."}</span>
                     </p>
                   </div>
                 )}
@@ -193,7 +193,7 @@ export default function AnimeCard({ anime, onSwipe, onRewind, onInfo, onShare, s
             <h4 className="text-pink-300 font-medium text-sm">Why you'll love it</h4>
           </div>
           <p className="text-white/95 text-sm">
-            {anime.recommendationReason}
+            {"You love " + (anime.genres?.[0] ?? "Action") + " animes."}
           </p>
         </div>
       )}
