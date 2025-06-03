@@ -127,7 +127,7 @@ export default function Home() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   useEffect(() => {
-    const session = localStorage.getItem("animeswipe_session")
+    const session = localStorage.getItem("asumi_session")
     if (session) {
       try {
         const parsedSession = JSON.parse(session);
