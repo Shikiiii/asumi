@@ -62,7 +62,7 @@ export default function LoginPage() {
               </motion.div>
 
               <CardTitle className="text-2xl md:text-3xl font-bold text-white bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent">
-                Welcome to AnimeSwipe
+                Welcome to Asumi
               </CardTitle>
 
               <CardDescription className="text-base text-white/70 leading-relaxed px-2">
@@ -71,10 +71,7 @@ export default function LoginPage() {
 
               {/* Feature badges */}
               <div className="flex justify-center gap-2 pt-2">
-                <div className="inline-flex items-center gap-1 px-2 py-1 bg-purple-600/20 rounded-full border border-purple-500/30 text-xs text-purple-300">
-                  <Zap className="h-3 w-3" />
-                  AI Powered
-                </div>
+
                 <div className="inline-flex items-center gap-1 px-2 py-1 bg-pink-600/20 rounded-full border border-pink-500/30 text-xs text-pink-300">
                   <Sparkles className="h-3 w-3" />
                   Smart Matching
@@ -158,23 +155,6 @@ export default function LoginPage() {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 1 }}
           >
-            <div className="grid grid-cols-3 gap-3 text-center">
-              <div className="bg-white/5 rounded-lg p-3 backdrop-blur">
-                <div className="text-xl font-bold text-white">10K+</div>
-                <div className="text-xs text-white/60">Anime Titles</div>
-              </div>
-              <div className="bg-white/5 rounded-lg p-3 backdrop-blur">
-                <div className="text-xl font-bold text-white">50K+</div>
-                <div className="text-xs text-white/60">Happy Users</div>
-              </div>
-              <div className="bg-white/5 rounded-lg p-3 backdrop-blur">
-                <div className="text-xl font-bold text-white">1M+</div>
-                <div className="text-xs text-white/60">Matches Made</div>
-              </div>
-            </div>
-            <p className="text-xs text-white/40">
-              © {new Date().getFullYear()} AnimeSwipe. Not affiliated with MyAnimeList or Anilist.
-            </p>
           </motion.div>
         </motion.div>
       </main>
