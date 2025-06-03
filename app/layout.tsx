@@ -11,6 +11,9 @@ export const metadata: Metadata = {
   title: "Asumi - Discover Your Next Favorite Anime",
   description: "Swipe through personalized anime recommendations based on your MyAnimeList or Anilist profile",
   viewport: "width=device-width, initial-scale=1, maximum-scale=1",
+  icons: {
+    icon: '/favicon.svg',
+  },
 }
 
 export default function RootLayout({
