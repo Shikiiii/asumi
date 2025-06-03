@@ -66,7 +66,7 @@ export default function LoginPage() {
               </CardTitle>
 
               <CardDescription className="text-base text-white/70 leading-relaxed px-2">
-                Connect your anime account to unlock personalized recommendations powered by AI
+                Connect your anime account to unlock personalized recommendations.
               </CardDescription>
 
               {/* Feature badges */}

@@ -32,6 +32,9 @@ export const metadata: Metadata = {
     description: "Swipe through personalized anime recommendations based on your MyAnimeList or Anilist profile",
     images: ["https://asumi.vercel.app/embed_image.png"],
   },
+  icons: {
+    icon: '/favicon.svg',
+  },
 }
 
 export default function RootLayout({

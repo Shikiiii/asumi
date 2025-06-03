@@ -92,3 +92,12 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+html, body {
+  overflow-x: hidden;
+}
+
+/* Ensure smooth transitions */
+* {
+  box-sizing: border-box;
+}
