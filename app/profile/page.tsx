@@ -1,14 +1,15 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { LogOut, Settings, Star, Heart, TrendingUp, Calendar, ArrowLeft, Edit, ExternalLink } from "lucide-react"
+import { LogOut, Settings, Star, Heart, TrendingUp, Calendar, ArrowLeft, Edit, ExternalLink, Download } from "lucide-react"
 import { motion } from "framer-motion"
 import Header from "@/components/header"
 import Footer from "@/components/footer"
+import { toPng } from "html-to-image";
 
 interface SwipeStats {
   matches: number;
@@ -105,6 +106,19 @@ export default function ProfilePage() {
         setUserAsumiStats(initialStats);
     }
   }, [])
+
+  // ==== STATS EXPORTING ======
+  const statsRef = useRef<HTMLDivElement>(null);
+  const handleDownload = async () => {
+    if (statsRef.current === null) return;
+
+    const dataUrl = await toPng(statsRef.current);
+    const link = document.createElement("a");
+    link.download = "my-anime-stats.png";
+    link.href = dataUrl;
+    link.click();
+  };
+
 
   const [userInfo, setUserInfo] = useState<UserInfo>({ username: "", avatar: "", watching: 0, completed: 0, ptw: 0, onhold: 0, dropped: 0, days_watched: 0, episodes: 0, avg_score: 0 });
 
@@ -397,6 +411,7 @@ export default function ProfilePage() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
+              ref={statsRef}
             >
               {/* Detailed Stats */}
               <Card className="bg-white/5 backdrop-blur-xl border-white/10 shadow-2xl">
@@ -551,13 +566,22 @@ export default function ProfilePage() {
                   
                   {/* Quick action button */}
                   <div className="mt-6 pt-4 border-t border-white/10">
-                    <Button
-                      onClick={() => router.push("/swipe")}
-                      className="w-full bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-white shadow-lg hover:shadow-pink-500/25 transition-all hover:scale-105"
-                    >
-                      <Heart className="mr-2 h-4 w-4" />
-                      Continue Swiping
-                    </Button>
+                    <div className="flex flex-col gap-3">
+                      <Button
+                        onClick={() => router.push("/swipe")}
+                        className="w-full bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-white shadow-lg hover:shadow-pink-500/25 transition-all hover:scale-105"
+                      >
+                        <Heart className="mr-2 h-4 w-4" />
+                        Continue Swiping
+                      </Button>
+                        <Button
+                        onClick={() => handleDownload()}
+                        className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white shadow-lg hover:shadow-cyan-500/25 transition-all hover:scale-105"
+                        >
+                        <Download className="mr-2 h-4 w-4" />
+                        Download
+                        </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
