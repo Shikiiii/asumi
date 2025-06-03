@@ -146,10 +146,10 @@ export default function Home() {
   const handleGetStarted = () => {
     if (isAuthenticated) {
       console.log('Redirecting to /swipe')
-      router.push('/swipe')
+      window.location.href = '/swipe'
     } else {
       console.log('Redirecting to /login')
-      router.push('/login')
+      window.location.href = '/login'
     }
   }
 
