@@ -111,7 +111,7 @@ const AsumiLogo = ({ className }: { className?: string }) => (
       y="65"
       fontFamily="'Comfortaa', 'Quicksand', 'Nunito', system-ui, sans-serif"
       fontSize="38"
-      fontWeight="750"
+      fontWeight="650"
       textAnchor="middle"
       fill="rgba(0,0,0,0.3)"
       transform="translate(2, 2)"
@@ -126,7 +126,7 @@ const AsumiLogo = ({ className }: { className?: string }) => (
       y="65"
       fontFamily="'Comfortaa', 'Quicksand', 'Nunito', system-ui, sans-serif"
       fontSize="38"
-      fontWeight="750"
+      fontWeight="650"
       textAnchor="middle"
       fill="url(#mainGradient)"
       filter="url(#logoGlow)"
@@ -142,7 +142,7 @@ const AsumiLogo = ({ className }: { className?: string }) => (
       y="65"
       fontFamily="'Comfortaa', 'Quicksand', 'Nunito', system-ui, sans-serif"
       fontSize="38"
-      fontWeight="750"
+      fontWeight="650"
       textAnchor="middle"
       fill="url(#shimmer)"
       letterSpacing="5px"
@@ -258,8 +258,8 @@ export default function Header({ isMobile = false }: HeaderProps) {
             {pathname !== '/profile' && (
               <Link href="/profile">
                 <Button variant="ghost" size={isMobile ? "sm" : "default"} className="text-white hover:text-white hover:bg-white/10 transition-all">
-                  <User className="mr-2 h-4 w-4" />
-                  Profile
+                  <User className={`h-4 w-4 ${!isMobile ? 'mr-2' : ''}`} />
+                  {!isMobile && "Profile"}
                 </Button>
               </Link>
             )}
