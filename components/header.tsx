@@ -21,7 +21,7 @@ export default function Header({ isMobile = false }: HeaderProps) {
   useEffect(() => {
     // Check if user is logged in by checking for session
     const checkAuthStatus = () => {
-      const session = localStorage.getItem("animeswipe_session")
+      const session = localStorage.getItem("asumi_session")
       setIsLoggedIn(!!session)
       setIsLoading(false)
     }
@@ -37,7 +37,7 @@ export default function Header({ isMobile = false }: HeaderProps) {
   }, [])
 
   const handleLogout = () => {
-    localStorage.removeItem("animeswipe_session")
+    localStorage.removeItem("asumi_session")
     setIsLoggedIn(false)
     if (pathname === "/") {
       window.location.reload()

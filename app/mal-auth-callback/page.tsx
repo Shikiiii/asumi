@@ -34,7 +34,7 @@ export default function MalAuthCallback() {
         refresh_token: refresh_token,
       };
 
-      localStorage.setItem("animeswipe_session", JSON.stringify(newUser));
+      localStorage.setItem("asumi_session", JSON.stringify(newUser));
 
       window.location.href = "/swipe";
     };

@@ -74,7 +74,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = () => {
     setUser(null)
-    localStorage.removeItem("animeswipe_session")
+    localStorage.removeItem("asumi_session")
   }
 
   return (

@@ -12,7 +12,7 @@ export default function AnilistAuthCallback() {
         access_token: params.get("access_token"),
       };
 
-      localStorage.setItem("animeswipe_session", JSON.stringify(newUser));
+      localStorage.setItem("asumi_session", JSON.stringify(newUser));
 
       window.location.href = "/swipe";
     };
