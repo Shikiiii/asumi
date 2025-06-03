@@ -31,9 +31,9 @@ export default function ProfilePage() {
     dropped: number,
     days_watched: number,
     episodes: number,
-    avg_rating: number,
+    avg_score: number,
   }
-  const [userInfo, setUserInfo] = useState<UserInfo>({ username: "", avatar: "", watching: 0, completed: 0, ptw: 0, onhold: 0, dropped: 0, days_watched: 0, episodes: 0, avg_rating: 0 });
+  const [userInfo, setUserInfo] = useState<UserInfo>({ username: "", avatar: "", watching: 0, completed: 0, ptw: 0, onhold: 0, dropped: 0, days_watched: 0, episodes: 0, avg_score: 0 });
 
   useEffect(() => {
     const checkMobile = () => {
@@ -80,44 +80,104 @@ export default function ProfilePage() {
               router.push("/login");
             });
         } else if (updatedUserData.provider === "anilist") {
-            const query = `
-              query {
-                Viewer {
+          const viewerQuery = `
+            query {
+              Viewer {
                 name
-                avatar {
-                  large
-                }
-                }
               }
-            `;
-            fetch("https://graphql.anilist.co", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${updatedUserData.access_token}`,
-              },
-              body: JSON.stringify({ query }),
+            }
+          `;
+
+          // Step 1: Get username
+          fetch("https://graphql.anilist.co", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${updatedUserData.access_token}`,
+            },
+            body: JSON.stringify({ query: viewerQuery }),
+          })
+            .then(res => res.json())
+            .then(viewerData => {
+              const username = viewerData.data?.Viewer?.name;
+              if (!username) throw new Error("Could not retrieve AniList username");
+
+              // Step 2: Fetch full info
+              const fullQuery = `
+                query ($userName: String!) {
+                  Viewer {
+                    name
+                    avatar {
+                      large
+                    }
+                    statistics {
+                      anime {
+                        episodesWatched
+                        meanScore
+                        minutesWatched
+                      }
+                    }
+                  }
+                  MediaListCollection(userName: $userName, type: ANIME) {
+                    lists {
+                      status
+                      entries {
+                        id
+                      }
+                    }
+                  }
+                }
+              `;
+
+              return fetch("https://graphql.anilist.co", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  "Authorization": `Bearer ${updatedUserData.access_token}`,
+                },
+                body: JSON.stringify({
+                  query: fullQuery,
+                  variables: { userName: username },
+                }),
+              });
             })
-            .then((response) => {
-              if (!response.ok) {
-                throw new Error("Failed to fetch user info from AniList");
-              }
-              return response.json();
-            })
-            .then((data) => {
+            .then(res => res.json())
+            .then(data => {
               const viewer = data.data?.Viewer;
-              if (viewer) {
-                const updatedUserInfo = {
-                  username: viewer.name,
-                  avatar: viewer.avatar?.large || "",
-                };
-                setUserInfo(updatedUserInfo);
-              } else {
-                throw new Error("No user info returned from AniList");
+              const stats = viewer?.statistics?.anime;
+              const lists = data.data?.MediaListCollection?.lists || [];
+
+              const listCounts: Record<string, number> = {
+                COMPLETED: 0,
+                CURRENT: 0,
+                PLANNING: 0,
+                PAUSED: 0,
+                DROPPED: 0,
+              };
+
+              for (const list of lists) {
+                if (list.status in listCounts) {
+                  listCounts[list.status] = list.entries.length;
+                }
               }
+
+              const userInfo: UserInfo = {
+                username: viewer.name,
+                avatar: viewer.avatar?.large || "",
+                watching: listCounts.CURRENT,
+                completed: listCounts.COMPLETED,
+                ptw: listCounts.PLANNING,
+                onhold: listCounts.PAUSED,
+                dropped: listCounts.DROPPED,
+                days_watched: Math.round(stats.minutesWatched / 1440),
+                episodes: stats.episodesWatched,
+                avg_score: Math.round(stats.meanScore * 10) / 10,
+              };
+
+              setUserInfo(userInfo);
             })
-            .catch((error) => {
-              console.error("Error fetching user info from AniList:", error);
+            .catch(error => {
+              console.error("Error fetching AniList user info:", error);
               router.push("/login");
             });
         }
@@ -231,7 +291,14 @@ export default function ProfilePage() {
                         <div className="text-xs text-white/60">Total Anime</div>
                       </div>
                       <div className="bg-white/5 rounded-lg p-3 text-center">
-                        <div className="text-lg font-bold text-white">{userInfo.avg_rating}</div>
+                        <div className="text-lg font-bold text-white">
+                          {userInfo.avg_score
+                            ? Math.round(
+                                (userInfo.avg_score > 10
+                                  ? userInfo.avg_score / 10
+                                  : userInfo.avg_score) * 10
+                              ) / 10
+                            : 0}/10</div>
                         <div className="text-xs text-white/60">Avg Score</div>
                       </div>
                     </div>
@@ -291,7 +358,7 @@ export default function ProfilePage() {
                         <Calendar className="h-4 w-4 text-cyan-400" />
                         <span className="text-sm text-white/80">Watching</span>
                       </div>
-                      <div className="text-2xl font-bold text-white">{stats.watching}</div>
+                      <div className="text-2xl font-bold text-white">{userInfo.watching}</div>
                     </div>
                     
                     <div className="bg-gradient-to-br from-blue-600/20 to-blue-700/20 rounded-lg p-4 border border-blue-500/20">
@@ -307,7 +374,7 @@ export default function ProfilePage() {
                         <Calendar className="h-4 w-4 text-yellow-400" />
                         <span className="text-sm text-white/80">On Hold</span>
                       </div>
-                      <div className="text-2xl font-bold text-white">{stats.onHold}</div>
+                      <div className="text-2xl font-bold text-white">{userInfo.onhold}</div>
                     </div>
                     
                     <div className="bg-gradient-to-br from-red-600/20 to-red-700/20 rounded-lg p-4 border border-red-500/20">
@@ -315,7 +382,7 @@ export default function ProfilePage() {
                         <Calendar className="h-4 w-4 text-red-400" />
                         <span className="text-sm text-white/80">Dropped</span>
                       </div>
-                      <div className="text-2xl font-bold text-white">{stats.dropped}</div>
+                      <div className="text-2xl font-bold text-white">{userInfo.dropped}</div>
                     </div>
                     
                     <div className="bg-gradient-to-br from-pink-600/20 to-purple-600/20 rounded-lg p-4 border border-pink-500/20">
@@ -323,7 +390,7 @@ export default function ProfilePage() {
                         <Star className="h-4 w-4 text-pink-400" />
                         <span className="text-sm text-white/80">Episodes</span>
                       </div>
-                      <div className="text-2xl font-bold text-white">{stats.episodes}</div>
+                      <div className="text-2xl font-bold text-white">{userInfo.episodes}</div>
                     </div>
                     
                     <div className="bg-gradient-to-br from-yellow-600/20 to-orange-600/20 rounded-lg p-4 border border-yellow-500/20 md:col-span-2">
@@ -331,8 +398,8 @@ export default function ProfilePage() {
                         <TrendingUp className="h-4 w-4 text-yellow-400" />
                         <span className="text-sm text-white/80">Days Watched</span>
                       </div>
-                      <div className="text-2xl font-bold text-white">{stats.daysWatched}</div>
-                      <div className="text-xs text-white/60 mt-1">That's {Math.round(stats.daysWatched * 24)} hours!</div>
+                      <div className="text-2xl font-bold text-white">{userInfo.days_watched}</div>
+                      <div className="text-xs text-white/60 mt-1">That's {Math.round(userInfo.days_watched * 24)} hours!</div>
                     </div>
                     
                     <div className="bg-gradient-to-br from-purple-600/20 to-indigo-600/20 rounded-lg p-4 border border-purple-500/20">
@@ -340,7 +407,14 @@ export default function ProfilePage() {
                         <Star className="h-4 w-4 text-purple-400" />
                         <span className="text-sm text-white/80">Avg Rating</span>
                       </div>
-                      <div className="text-2xl font-bold text-white">{stats.avgScore}/10</div>
+                      <div className="text-2xl font-bold text-white">
+                      {userInfo.avg_score
+                        ? Math.round(
+                            (userInfo.avg_score > 10
+                              ? userInfo.avg_score / 10
+                              : userInfo.avg_score) * 10
+                          ) / 10
+                        : 0}/10</div>
                     </div>
                   </div>
                 </CardContent>

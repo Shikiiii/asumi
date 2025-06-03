@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
             ptw: info?.anime_statistics.plan_to_watch,
             dropped: info?.anime_statistics.dropped,
             days_watched: info?.anime_statistics.total_days,
-            episodes_watched: info?.anime_statistics.episodes,
+            episodes: info?.anime_statistics.episodes,
             avg_score: info?.anime_statistics.mean_score,
         })
     } catch (error) {
