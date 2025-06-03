@@ -95,26 +95,6 @@ Try it live: [aniswipe.vercel.app](https://your-demo-link.com)
   <img src="/screenshots/3.png" alt="Profile Page" width="1080"/>
 </div>
 
-## 🏗️ Project Structure
-
-```
-aniswipe/
-├── app/                    # Next.js app directory
-│   ├── about/             # About page
-│   ├── anime/[id]/        # Dynamic anime detail pages
-│   ├── auth/              # Authentication pages
-│   ├── swipe/             # Main swiping interface
-│   └── api/               # API routes
-├── components/            # Reusable components
-│   ├── ui/               # UI components
-│   ├── anime-card.tsx    # Anime card component
-│   ├── header.tsx        # Navigation header
-│   └── footer.tsx        # Footer component
-├── types/                # TypeScript type definitions
-├── lib/                  # Utility functions
-└── public/              # Static assets
-```
-
 ## 🤝 Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
