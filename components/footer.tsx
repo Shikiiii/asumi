@@ -22,7 +22,7 @@ export default function Footer() {
           {/* Right side - Links */}
           <div className="flex items-center gap-4 text-xs">
             <Link 
-              href="https://github.com/Shikiiii/aniswipe" 
+              href="https://github.com/Shikiiii/asumi" 
               target="_blank"
               rel="noopener noreferrer"
               className="text-white/50 hover:text-white transition-colors flex items-center gap-1"

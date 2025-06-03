@@ -17,55 +17,11 @@ export default function PrivacyPage() {
       icon: <Database className="h-6 w-6" />,
       title: "Information We Collect",
       content: [
-        "Account information from MyAnimeList or AniList (username, anime lists, preferences)",
-        "Usage data (anime you swipe, preferences, interactions)",
-        "Device information (browser type, IP address for security)",
-        "Cookies and local storage for authentication and preferences"
+        "We do not save any of your information on our servers.",
+        "Your statistics and credentials related to MyAnimeList or Anilist are all saved on your browser, locally.",
+        "Nothing is sent to us."
       ]
     },
-    {
-      icon: <Eye className="h-6 w-6" />,
-      title: "How We Use Your Data",
-      content: [
-        "Provide personalized anime recommendations",
-        "Sync your watchlist with connected platforms",
-        "Improve our recommendation algorithms",
-        "Ensure platform security and prevent abuse",
-        "Send important service updates (with your consent)"
-      ]
-    },
-    {
-      icon: <Users className="h-6 w-6" />,
-      title: "Data Sharing",
-      content: [
-        "We do NOT sell your personal data to third parties",
-        "Anonymous usage statistics may be shared with analytics providers",
-        "Data is shared with MyAnimeList/AniList only as required for service functionality",
-        "Legal compliance: We may disclose data if required by law"
-      ]
-    },
-    {
-      icon: <Lock className="h-6 w-6" />,
-      title: "Data Security",
-      content: [
-        "All data transmission is encrypted using HTTPS",
-        "OAuth 2.0 authentication - we never store your passwords",
-        "Regular security audits and monitoring",
-        "Secure cloud infrastructure with industry-standard protections",
-        "Limited access to your data on a need-to-know basis"
-      ]
-    },
-    {
-      icon: <Trash2 className="h-6 w-6" />,
-      title: "Your Rights",
-      content: [
-        "Access: Request a copy of your personal data",
-        "Correction: Update or correct your information",
-        "Deletion: Request deletion of your account and data",
-        "Portability: Export your data in a readable format",
-        "Withdrawal: Revoke consent for data processing at any time"
-      ]
-    }
   ]
 
   return (
@@ -101,11 +57,7 @@ export default function PrivacyPage() {
           </p>
           
           <p className="text-white/60 text-sm">
-            Last updated: {new Date().toLocaleDateString('en-US', { 
-              year: 'numeric', 
-              month: 'long', 
-              day: 'numeric' 
-            })}
+            Last updated: June 3rd, 2025
           </p>
         </motion.div>
 
@@ -124,12 +76,12 @@ export default function PrivacyPage() {
                 <div className="text-white/70">We never sell your personal information</div>
               </div>
               <div>
-                <div className="font-semibold text-white mb-1">Secure Storage</div>
-                <div className="text-white/70">Your data is encrypted and protected</div>
+                <div className="font-semibold text-white mb-1">No Data Collected</div>
+                <div className="text-white/70">We do not collect and save ANY data on our servers</div>
               </div>
               <div>
-                <div className="font-semibold text-white mb-1">Your Control</div>
-                <div className="text-white/70">Delete your data anytime</div>
+                <div className="font-semibold text-white mb-1">Local Storage</div>
+                <div className="text-white/70">All your data is saved locally on your machine</div>
               </div>
             </div>
           </Card>
@@ -165,41 +117,6 @@ export default function PrivacyPage() {
           ))}
         </div>
 
-        {/* Contact Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.8 }}
-          className="mt-16"
-        >
-          <Card className="bg-white/5 border-white/20 p-8 backdrop-blur-sm text-center">
-            <Mail className="h-8 w-8 text-pink-400 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-white mb-4">Questions About Privacy?</h2>
-            <p className="text-white/80 mb-6 max-w-2xl mx-auto">
-              If you have any questions about this Privacy Policy or how we handle your data, 
-              please don't hesitate to reach out to us.
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button 
-                onClick={() => window.location.href = 'mailto:privacy@aniswipe.com'}
-                className="bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-white font-semibold px-8 py-3 rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-105"
-              >
-                <Mail className="mr-2 h-4 w-4" />
-                Contact Us
-              </Button>
-              
-              <Button 
-                variant="outline"
-                onClick={() => router.push("/")}
-                className="border-white/30 text-white hover:bg-white/10 px-8 py-3 rounded-full transition-all hover:scale-105"
-              >
-                Back to Home
-              </Button>
-            </div>
-          </Card>
-        </motion.div>
-
         {/* Cookie Notice */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -213,7 +130,7 @@ export default function PrivacyPage() {
               <div className="text-sm">
                 <div className="font-semibold text-blue-400 mb-1">Cookie Usage</div>
                 <div className="text-white/70">
-                  We use essential cookies for authentication and preferences. No tracking cookies are used without your consent.
+                  We use essential cookies for authentication via MyAnimeList or Anilist. No tracking cookies are used without your consent.
                 </div>
               </div>
             </div>
