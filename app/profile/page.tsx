@@ -1,14 +1,38 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { LogOut, Settings, Star, Heart, TrendingUp, Calendar, ArrowLeft, Edit, ExternalLink } from "lucide-react"
+import { LogOut, Settings, Star, Heart, TrendingUp, Calendar, ArrowLeft, Edit, ExternalLink, Download } from "lucide-react"
 import { motion } from "framer-motion"
 import Header from "@/components/header"
 import Footer from "@/components/footer"
+import { toPng } from "html-to-image";
+
+interface SwipeStats {
+  matches: number;
+  passed: number;
+  total_swipes: number;
+  today: number;
+  streak: number;
+  last_day_logged_in: string; // ISO date string
+  first_day_logged_in: string; // ISO date string
+}
+
+interface UserInfo {
+  username: string;
+  avatar: string;
+  watching: number,
+  completed: number,
+  ptw: number,
+  onhold: number,
+  dropped: number,
+  days_watched: number,
+  episodes: number,
+  avg_score: number,
+}
 
 export default function ProfilePage() {
   const router = useRouter()
@@ -21,18 +45,81 @@ export default function ProfilePage() {
   }
   const [userData, setUserData] = useState<UserData>({ provider: "", access_token: "", refresh_token: null });
 
-  interface UserInfo {
-    username: string;
-    avatar: string;
-    watching: number,
-    completed: number,
-    ptw: number,
-    onhold: number,
-    dropped: number,
-    days_watched: number,
-    episodes: number,
-    avg_score: number,
-  }
+  const [userAsumiStats, setUserAsumiStats] = useState<SwipeStats | null>(null);
+  const [matchRate, setMatchRate] = useState<number>(0);
+
+  useEffect(() => {
+    const session = localStorage.getItem("asumi_stats");
+
+    if (session) {
+      console.log("Has session");
+      const parsedSession = JSON.parse(session);
+      const asumiStats = { matches: parsedSession.matches, passed: parsedSession.passed, total_swipes: parsedSession.total_swipes, today: parsedSession.today, streak: parsedSession.streak, last_day_logged_in: parsedSession.last_day_logged_in, first_day_logged_in: parsedSession.first_day_logged_in };
+      console.log("Asumi stats:", asumiStats);
+      // check current date in iso format
+      const todayIso = new Date().toISOString().slice(0, 10);
+
+      if (asumiStats.last_day_logged_in !== todayIso) {
+        // Check if last_day_logged_in is exactly yesterday
+        const lastDate = new Date(asumiStats.last_day_logged_in);
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const lastDateIso = lastDate.toISOString().slice(0, 10);
+        const yesterdayIso = yesterday.toISOString().slice(0, 10);
+
+        if (lastDateIso === yesterdayIso) {
+          // Continue streak
+          asumiStats.streak += 1;
+          asumiStats.last_day_logged_in = todayIso;
+          asumiStats.today = 0;
+        } else if (lastDateIso !== todayIso) {
+          // Reset streak
+          asumiStats.streak = 1;
+          asumiStats.first_day_logged_in = todayIso;
+          asumiStats.last_day_logged_in = todayIso;
+          asumiStats.today = 0;
+        }
+        localStorage.setItem(
+          "asumi_stats",
+          JSON.stringify({ ...parsedSession, ...asumiStats })
+        );
+      }
+      // calculate match rate percentage from asumiStats.matches and asumiStats.passed, round to 2 decimal
+      const total = asumiStats.matches + asumiStats.passed;
+      const rate = total > 0 ? (asumiStats.matches / total) * 100 : 0;
+      setMatchRate(Math.round(rate * 100) / 100);
+
+      setUserAsumiStats(asumiStats);
+    } else {
+        // set localStorage item, and set UserAsumiStats with 0's and todays date
+        const todayIso = new Date().toISOString().slice(0, 10);
+        const initialStats: SwipeStats = {
+          matches: 0,
+          passed: 0,
+          total_swipes: 0,
+          today: 0,
+          streak: 1,
+          last_day_logged_in: todayIso,
+          first_day_logged_in: todayIso,
+        };
+        localStorage.setItem("asumi_stats", JSON.stringify(initialStats));
+        setUserAsumiStats(initialStats);
+    }
+  }, [])
+
+  // ==== STATS EXPORTING ======
+  const statsRef = useRef<HTMLDivElement>(null);
+  const handleDownload = async () => {
+    if (statsRef.current === null) return;
+
+    const dataUrl = await toPng(statsRef.current);
+    const link = document.createElement("a");
+    link.download = "my-anime-stats.png";
+    link.href = dataUrl;
+    link.click();
+  };
+
+
   const [userInfo, setUserInfo] = useState<UserInfo>({ username: "", avatar: "", watching: 0, completed: 0, ptw: 0, onhold: 0, dropped: 0, days_watched: 0, episodes: 0, avg_score: 0 });
 
   useEffect(() => {
@@ -47,8 +134,8 @@ export default function ProfilePage() {
   }, [])
 
   useEffect(() => {
-    // Check if animeswipe_session exists in local storage
-    const session = localStorage.getItem("animeswipe_session")
+    // Check if asumi_session exists in local storage
+    const session = localStorage.getItem("asumi_session")
     if (session) {
       try {
         const parsedSession = JSON.parse(session);
@@ -182,7 +269,7 @@ export default function ProfilePage() {
             });
         }
       } catch (error) {
-        console.error("Error parsing animeswipe_session:", error);
+        console.error("Error parsing asumi_session:", error);
         router.push("/login");
         return;
       }
@@ -193,7 +280,7 @@ export default function ProfilePage() {
   }, [router])
 
   const handleLogout = () => {
-    localStorage.removeItem("animeswipe_session")
+    localStorage.removeItem("asumi_session")
     router.push("/login")
   }
 
@@ -230,14 +317,6 @@ export default function ProfilePage() {
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Swiping
-          </Button>
-          
-          <Button
-            variant="outline"
-            className="border-white/20 text-white hover:bg-white/10 hover:border-white/40"
-          >
-            <Settings className="mr-2 h-4 w-4" />
-            Settings
           </Button>
         </motion.div>
 
@@ -312,14 +391,6 @@ export default function ProfilePage() {
                     {/* Action buttons */}
                     <div className="flex gap-2 mt-6 w-full">
                       <Button
-                        variant="outline"
-                        size="sm"
-                        className="flex-1 border-white/20 text-white hover:bg-white/10 hover:border-white/40"
-                      >
-                        <Edit className="mr-2 h-3 w-3" />
-                        Edit
-                      </Button>
-                      <Button
                         variant="destructive"
                         size="sm"
                         onClick={handleLogout}
@@ -340,6 +411,7 @@ export default function ProfilePage() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
+              ref={statsRef}
             >
               {/* Detailed Stats */}
               <Card className="bg-white/5 backdrop-blur-xl border-white/10 shadow-2xl">
@@ -442,7 +514,7 @@ export default function ProfilePage() {
                         <Heart className="h-4 w-4 text-pink-400" />
                         <span className="text-sm text-white/80">Matches</span>
                       </div>
-                      <div className="text-2xl font-bold text-white">{swipeStats.matches}</div>
+                      <div className="text-2xl font-bold text-white">{userAsumiStats?.matches}</div>
                       <div className="text-xs text-white/60 mt-1">You liked these!</div>
                     </div>
                     
@@ -451,7 +523,7 @@ export default function ProfilePage() {
                         <Calendar className="h-4 w-4 text-gray-400" />
                         <span className="text-sm text-white/80">Passed</span>
                       </div>
-                      <div className="text-2xl font-bold text-white">{swipeStats.passed}</div>
+                      <div className="text-2xl font-bold text-white">{userAsumiStats?.passed}</div>
                       <div className="text-xs text-white/60 mt-1">Not your type</div>
                     </div>
                     
@@ -460,7 +532,7 @@ export default function ProfilePage() {
                         <TrendingUp className="h-4 w-4 text-purple-400" />
                         <span className="text-sm text-white/80">Match Rate</span>
                       </div>
-                      <div className="text-2xl font-bold text-white">{swipeStats.matchRate}%</div>
+                      <div className="text-2xl font-bold text-white">{matchRate}%</div>
                       <div className="text-xs text-white/60 mt-1">Pretty selective!</div>
                     </div>
                     
@@ -469,7 +541,7 @@ export default function ProfilePage() {
                         <Star className="h-4 w-4 text-blue-400" />
                         <span className="text-sm text-white/80">Total Swipes</span>
                       </div>
-                      <div className="text-2xl font-bold text-white">{swipeStats.totalSwipes}</div>
+                      <div className="text-2xl font-bold text-white">{userAsumiStats?.total_swipes}</div>
                       <div className="text-xs text-white/60 mt-1">Keep swiping!</div>
                     </div>
                     
@@ -478,7 +550,7 @@ export default function ProfilePage() {
                         <Calendar className="h-4 w-4 text-orange-400" />
                         <span className="text-sm text-white/80">Today</span>
                       </div>
-                      <div className="text-2xl font-bold text-white">{swipeStats.todaySwipes}</div>
+                      <div className="text-2xl font-bold text-white">{userAsumiStats?.today}</div>
                       <div className="text-xs text-white/60 mt-1">Swipes today</div>
                     </div>
                     
@@ -487,20 +559,29 @@ export default function ProfilePage() {
                         <TrendingUp className="h-4 w-4 text-green-400" />
                         <span className="text-sm text-white/80">Streak</span>
                       </div>
-                      <div className="text-2xl font-bold text-white">{swipeStats.streak}</div>
+                      <div className="text-2xl font-bold text-white">{userAsumiStats?.streak}</div>
                       <div className="text-xs text-white/60 mt-1">Days active</div>
                     </div>
                   </div>
                   
                   {/* Quick action button */}
                   <div className="mt-6 pt-4 border-t border-white/10">
-                    <Button
-                      onClick={() => router.push("/swipe")}
-                      className="w-full bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-white shadow-lg hover:shadow-pink-500/25 transition-all hover:scale-105"
-                    >
-                      <Heart className="mr-2 h-4 w-4" />
-                      Continue Swiping
-                    </Button>
+                    <div className="flex flex-col gap-3">
+                      <Button
+                        onClick={() => router.push("/swipe")}
+                        className="w-full bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-white shadow-lg hover:shadow-pink-500/25 transition-all hover:scale-105"
+                      >
+                        <Heart className="mr-2 h-4 w-4" />
+                        Continue Swiping
+                      </Button>
+                        <Button
+                        onClick={() => handleDownload()}
+                        className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white shadow-lg hover:shadow-cyan-500/25 transition-all hover:scale-105"
+                        >
+                        <Download className="mr-2 h-4 w-4" />
+                        Download
+                        </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>

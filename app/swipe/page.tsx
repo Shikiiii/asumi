@@ -14,6 +14,16 @@ import Header from "@/components/header"
 import Footer from "@/components/footer"
 import Link from "next/link"
 
+interface SwipeStats {
+  matches: number;
+  passed: number;
+  total_swipes: number;
+  today: number;
+  streak: number;
+  last_day_logged_in: string; // ISO date string
+  first_day_logged_in: string; // ISO date string
+}
+
 export default function SwipePage() {
   const router = useRouter()
   const [recommendations, setRecommendations] = useState<Anime[]>([])
@@ -23,7 +33,81 @@ export default function SwipePage() {
 
   const [swipeHistory, setSwipeHistory] = useState<Array<{ index: number, direction: 'left' | 'right' }>>([])
 
-  
+  const [userAsumiStats, setUserAsumiStats] = useState<SwipeStats | null>(null);
+
+  useEffect(() => {
+    const session = localStorage.getItem("asumi_stats");
+
+    if (session) {
+      const parsedSession = JSON.parse(session);
+      const asumiStats = { matches: parsedSession.matches, passed: parsedSession.passed, total_swipes: parsedSession.total_swipes, today: parsedSession.today, streak: parsedSession.streak, last_day_logged_in: parsedSession.last_day_logged_in, first_day_logged_in: parsedSession.first_day_logged_in };
+
+      // check current date in iso format
+      const todayIso = new Date().toISOString().slice(0, 10);
+
+      if (asumiStats.last_day_logged_in !== todayIso) {
+        // Check if last_day_logged_in is exactly yesterday
+        const lastDate = new Date(asumiStats.last_day_logged_in);
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const lastDateIso = lastDate.toISOString().slice(0, 10);
+        const yesterdayIso = yesterday.toISOString().slice(0, 10);
+
+        if (lastDateIso === yesterdayIso) {
+          // Continue streak
+          asumiStats.streak += 1;
+          asumiStats.last_day_logged_in = todayIso;
+          asumiStats.today = 0;
+        } else {
+          // Reset streak
+          asumiStats.streak = 1;
+          asumiStats.first_day_logged_in = todayIso;
+          asumiStats.last_day_logged_in = todayIso;
+          asumiStats.today = 0;
+        }
+        localStorage.setItem(
+          "asumi_stats",
+          JSON.stringify({ ...parsedSession, ...asumiStats })
+        );
+      }
+      setUserAsumiStats(asumiStats);
+    } else {
+        // set localStorage item, and set UserAsumiStats with 0's and todays date
+        const todayIso = new Date().toISOString().slice(0, 10);
+        const initialStats: SwipeStats = {
+          matches: 0,
+          passed: 0,
+          total_swipes: 0,
+          today: 0,
+          streak: 1,
+          last_day_logged_in: todayIso,
+          first_day_logged_in: todayIso,
+        };
+        localStorage.setItem("asumi_stats", JSON.stringify(initialStats));
+        setUserAsumiStats(initialStats);
+    }
+  }, [])
+
+  // everytime userAsumiStats changes, update the local storage item asumi_stats to reflect the changes
+  useEffect(() => {
+    if (userAsumiStats) {
+      const session = localStorage.getItem("asumi_stats");
+      let parsedSession = {};
+      if (session) {
+        try {
+          parsedSession = JSON.parse(session);
+        } catch (e) {
+          parsedSession = {};
+        }
+      }
+      localStorage.setItem(
+        "asumi_stats",
+        JSON.stringify({ ...parsedSession, ...userAsumiStats })
+      );
+    }
+  }, [userAsumiStats]);
+
+
   interface UserData {
     provider: string;
     access_token: string;
@@ -97,10 +181,12 @@ export default function SwipePage() {
     // Only keep the LAST left swipe in history (max 1 item)
     if (direction === "left") {
       setSwipeHistory([{ index: currentIndex, direction }]) // Replace entire history with just this one
+      setUserAsumiStats(prev => prev ? { ...prev, passed: prev.passed + 1, total_swipes: prev.total_swipes + 1, today: prev.today + 1 } : null)
     }
 
     // Handle RIGHT swipe (like/add to list)
     if (direction === "right") {
+      setUserAsumiStats(prev => prev ? { ...prev, matches: prev.matches + 1, total_swipes: prev.total_swipes + 1, today: prev.today + 1 } : null)
       console.log("Provider:", userData.provider);
       console.log("User data:", userData);
       console.log("Current anime:", currentAnime);
