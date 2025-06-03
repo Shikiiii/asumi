@@ -88,6 +88,8 @@ export default function ProfilePage() {
       const total = asumiStats.matches + asumiStats.passed;
       const rate = total > 0 ? (asumiStats.matches / total) * 100 : 0;
       setMatchRate(Math.round(rate * 100) / 100);
+      console.log(Math.round(rate * 100) / 100);
+      console.log(matchRate);
 
       setUserAsumiStats(asumiStats);
     } else {
@@ -557,13 +559,32 @@ export default function ProfilePage() {
                             <span className="text-sm text-white/80">Avg Rating</span>
                           </div>
                           <div className="text-2xl font-bold text-white">
-                          {userInfo.avg_score
-                            ? Math.round(
-                                (userInfo.avg_score > 10
-                                  ? userInfo.avg_score / 10
-                                  : userInfo.avg_score) * 10
-                              ) / 10
-                            : 0}/10</div>
+                            {userInfo.avg_score
+                              ? Math.round(
+                                  (userInfo.avg_score > 10
+                                    ? userInfo.avg_score / 10
+                                    : userInfo.avg_score) * 10
+                                ) / 10
+                              : 0}/10
+                          </div>
+                          <div className="text-xs text-white/60 mt-1">
+                            {userInfo.avg_score
+                              ? (() => {
+                                  const score =
+                                    userInfo.avg_score > 10
+                                      ? userInfo.avg_score / 10
+                                      : userInfo.avg_score;
+                                  if (score < 3) return "Bro, do you even like anime?";
+                                  if (score >= 3 && score < 4) return "You rate like a villain.";
+                                  if (score >= 4 && score < 5) return "Tough crowd, huh?";
+                                  if (score >= 5 && score < 7) return "Mid enjoyer detected.";
+                                  if (score >= 7 && score < 9) return "Certified anime fan!";
+                                  if (score >= 9 && score < 10) return "Peak fiction connoisseur!";
+                                  if (score === 10) return "Typeshit.";
+                                  return "";
+                                })()
+                              : ""}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -599,7 +620,7 @@ export default function ProfilePage() {
                           <span className="text-sm text-white/80">Match Rate</span>
                         </div>
                         <div className="text-2xl font-bold text-white">{matchRate}%</div>
-                        <div className="text-xs text-white/60 mt-1">Pretty selective!</div>
+                        <div className="text-xs text-white/60 mt-1">{Number(matchRate) >= 50 ? 'Not the picky type.' : 'Pretty selective!'}</div>
                       </div>
                       
                       <div className="bg-gradient-to-br from-blue-600/20 to-cyan-600/20 rounded-lg p-4 border border-blue-500/20">
@@ -715,6 +736,24 @@ export default function ProfilePage() {
                               : userInfo.avg_score) * 10
                           ) / 10
                         : 0}/10</div>
+                        <div className="text-xs text-white/60 mt-1">
+                          {userInfo.avg_score
+                            ? (() => {
+                                const score =
+                                  userInfo.avg_score > 10
+                                    ? userInfo.avg_score / 10
+                                    : userInfo.avg_score;
+                                if (score < 3) return "Bro, do you even like anime?";
+                                if (score >= 3 && score < 4) return "You rate like a villain.";
+                                if (score >= 4 && score < 5) return "Tough crowd, huh?";
+                                if (score >= 5 && score < 7) return "Mid enjoyer detected.";
+                                if (score >= 7 && score < 9) return "Certified anime fan!";
+                                if (score >= 9 && score < 10) return "Peak fiction connoisseur!";
+                                if (score === 10) return "Typeshit.";
+                                return "";
+                              })()
+                            : ""}
+                      </div>
                     </div>
                   </div>
                 </CardContent>
@@ -755,7 +794,7 @@ export default function ProfilePage() {
                         <span className="text-sm text-white/80">Match Rate</span>
                       </div>
                       <div className="text-2xl font-bold text-white">{matchRate}%</div>
-                      <div className="text-xs text-white/60 mt-1">Pretty selective!</div>
+                      <div className="text-xs text-white/60 mt-1">{Number(matchRate) >= 50 ? 'Not the picky type.' : 'Pretty selective!'}</div>
                     </div>
                     
                     <div className="bg-gradient-to-br from-blue-600/20 to-cyan-600/20 rounded-lg p-4 border border-blue-500/20">
