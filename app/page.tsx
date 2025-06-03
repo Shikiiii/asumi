@@ -111,11 +111,14 @@ const AnimeCard = ({ anime, delay = 0 }: { anime: (typeof animeCovers)[0]; delay
 }
 
 export default function Home() {
-  const [isMobile, setIsMobile] = useState(false)
+  const [isMobile, setIsMobile] = useState<boolean | null>(null)
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 
+  // Move ALL useEffect hooks before any conditional returns
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768) // md breakpoint
+      setIsMobile(window.innerWidth < 768)
     }
     
     checkMobile()
@@ -124,8 +127,6 @@ export default function Home() {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
   useEffect(() => {
     const session = localStorage.getItem("asumi_session")
     if (session) {
@@ -139,10 +140,19 @@ export default function Home() {
         // ignore
         setIsLoading(false);
       }
-    } else { // Added else to ensure isLoading is set if no session
+    } else {
         setIsLoading(false);
     }
   }, [])
+
+  // NOW it's safe to have conditional returns
+  if (isMobile === null) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-white">Loading...</div>
+      </div>
+    )
+  }
 
   const handleGetStarted = () => {
     if (isAuthenticated) {

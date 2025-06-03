@@ -92,3 +92,19 @@
     padding-right: 1rem;
   }
 }
+
+@layer base {
+  html {
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    font-family: Inter, Arial, Helvetica, sans-serif;
+    overflow-x: hidden;
+  }
+  
+  * {
+    box-sizing: border-box;
+  }
+}
