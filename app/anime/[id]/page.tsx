@@ -64,7 +64,7 @@ export default function AnimePage() {
     const fetchAnimeDetails = async () => {
       setIsLoading(true)
       try {
-        const session = localStorage.getItem("animeswipe_session")
+        const session = localStorage.getItem("asumi_session")
         const parsedSession = JSON.parse(session || '{}');
         let tempUserData: any = null;
         setUserData({

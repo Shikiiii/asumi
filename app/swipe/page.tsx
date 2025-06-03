@@ -137,8 +137,8 @@ export default function SwipePage() {
   }, [currentAnime])
 
   useEffect(() => {
-    // Check if animeswipe_session exists in local storage
-    const session = localStorage.getItem("animeswipe_session")
+    // Check if asumi_session exists in local storage
+    const session = localStorage.getItem("asumi_session")
 
     let tempUserData: UserData = {provider: '', access_token: '', refresh_token: ''};
 
@@ -152,7 +152,7 @@ export default function SwipePage() {
         });
         tempUserData = {provider: parsedSession.provider || "", access_token: parsedSession.access_token || "", refresh_token: parsedSession.refresh_token || ""};
       } catch (error) {
-        console.error("Error parsing animeswipe_session:", error);
+        console.error("Error parsing asumi_session:", error);
         router.push("/login");
         return;
       }
