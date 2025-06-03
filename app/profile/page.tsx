@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { LogOut, Settings, Star, Heart, TrendingUp, Calendar, ArrowLeft, Edit } from "lucide-react"
+import { LogOut, Settings, Star, Heart, TrendingUp, Calendar, ArrowLeft, Edit, ExternalLink } from "lucide-react"
 import { motion } from "framer-motion"
 import Header from "@/components/header"
 import Footer from "@/components/footer"
@@ -261,28 +261,34 @@ export default function ProfilePage() {
                           {userInfo.username.substring(0, 2).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
-                      <Button
-                        size="sm"
-                        className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-purple-600 hover:bg-purple-700 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <Edit className="h-3 w-3" />
-                      </Button>
                     </div>
 
                     {/* User info */}
                     <h2 className="mt-6 text-2xl font-bold text-white bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent">
                       {userInfo.username}
                     </h2>
-                    <div className="flex items-center gap-2 mt-2 px-3 py-1 bg-white/10 rounded-full">
+
+                    {/* Provider button - clickable */}
+                    <Button
+                      variant="ghost"
+                      onClick={() => {
+                        const profileUrl = userData.provider === 'mal' 
+                          ? `https://myanimelist.net/profile/${userInfo.username}`
+                          : `https://anilist.co/user/${userInfo.username}`;
+                        window.open(profileUrl, '_blank');
+                      }}
+                      className="flex items-center gap-2 mt-2 px-3 py-1 bg-white/10 rounded-full hover:bg-white/20 transition-all hover:scale-105"
+                    >
                       <div className={`w-2 h-2 rounded-full ${userData.provider === 'mal' ? 'bg-blue-400' : 'bg-cyan-400'}`} />
                       <span className="text-sm text-white/80">
                         {userData.provider === "mal"
-                        ? "MyAnimeList"
-                        : userData.provider === "anilist"
-                        ? "Anilist"
-                        : "Unknown Provider"}
+                          ? "MyAnimeList"
+                          : userData.provider === "anilist"
+                          ? "AniList"
+                          : "Unknown Provider"}
                       </span>
-                    </div>
+                      <ExternalLink className="h-3 w-3 text-white/60" />
+                    </Button>
 
                     {/* Quick stats */}
                     <div className="grid grid-cols-2 gap-4 mt-6 w-full">
